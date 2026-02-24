@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MarketX Pro | 2026</title>
+    
+    <!-- External Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg: #050608;
+            --card: rgba(255, 255, 255, 0.04);
+            --accent: #00f2ff;
+            --secondary: #bd00ff;
+            --up: #00ffaa;
+            --down: #ff3366;
+            --text: #ffffff;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden; /* ڕێگری لە سکرۆڵی دەرەکی */
+            height: 100vh;
+        }
+
+        /* App Structure */
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(circle at top right, #101520, #050608);
+        }
+
+        /* Screens Management */
+        .screen {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            padding-bottom: 100px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            padding: 25px;
+            border-radius: 30px;
+            margin-bottom: 25px;
+            color: #000;
+            position: relative;
+        }
+
+        /* Prices */
+        .price-list { display: grid; gap: 12px; }
+        .price-item {
+            background: var(--card);
+            border: 1px solid var(--glass-border);
+            padding: 18px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        /* News & Impacts */
+        .news-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-right: 4px solid var(--accent);
+        }
+        .impact-tag {
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+        .positive { background: rgba(0, 255, 170, 0.2); color: var(--up); }
+        .negative { background: rgba(255, 51, 102, 0.2); color: var(--down); }
+
+        /* Full Screen Chart */
+        #chart-screen { padding: 0; }
+        #tradingview_widget { height: 100% !important; }
+
+        /* Bottom Nav */
+        nav.bottom-bar {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            background: rgba(20, 25, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 35px;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        .nav-btn {
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav-btn span { font-size: 10px; margin-top: 4px; font-weight: bold; }
+        .nav-btn.active { color: var(--accent); transform: translateY(-5px); }
+
+        /* Floating Meta Chart Button */
+        .meta-btn {
+            width: 55px; height: 55px;
+            background: var(--accent);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-top: -35px;
+            border: 5px solid var(--bg);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Screen 1: Home -->
+        <div id="home" class="screen active">
+            <header>
+                <h2 style="font-weight: 800;">Market<span style="color: var(--accent);">X</span></h2>
+                <i class="fas fa-bell"></i>
+            </header>
+
+            <div class="balance-card">
+                <p style="font-size: 14px; opacity: 0.8;">باری بازاڕ ئەمڕۆ</p>
+                <h1 style="font-size: 32px; margin: 5px 0;">Bullish 🟢</h1>
+                <p style="font-size: 12px;">پێشبینی: ئاڵتون بەرەو لووتکە دەڕوات</p>
+            </div>
+
+            <div class="price-list">
+                <div class="price-item">
+                    <div><p style="color: #888; font-size: 12px;">USD/IQD</p><strong>152,450</strong></div>
+                    <div style="color: var(--up);">+0.12% <i class="fas fa-chart-line"></i></div>
+                </div>
+                <div class="price-item">
+                    <div><p style="color: #888; font-size: 12px;">XAU/USD (Gold)</p><strong>$2,184.20</strong></div>
+                    <div style="color: var(--up);">+$12.4 <i class="fas fa-arrow-up"></i></div>
+                </div>
+                <div class="price-item">
+                    <div><p style="color: #888; font-size: 12px;">Oil (Brent)</p><strong>$84.15</strong></div>
+                    <div style="color: var(--down);">-0.45% <i class="fas fa-arrow-down"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 2: News & Banks -->
+        <div id="news" class="screen">
+            <h2 style="margin-bottom: 20px;">هەواڵ و کاریگەرییەکان</h2>
+            
+            <div class="news-card">
+                <span class="impact-tag positive">بانکە جیهانییەکان</span>
+                <h4>بڕیاری بانکی فیدراڵی ئەمریکا</h4>
+                <p style="font-size: 13px; color: #aaa; margin-top: 8px;">چاوەڕوان دەکرێت ڕێژەی سوود جێگیر بێت، ئەمەش دۆلار بەهێز دەکات بەرامبەر دینار.</p>
+            </div>
+
+            <div class="news-card" style="border-right-color: var(--secondary);">
+                <span class="impact-tag negative">ئاڵتون و زێو</span>
+                <h4>پاشەکشەی زێو لە بازاڕەکانی ئاسیا</h4>
+                <p style="font-size: 13px; color: #aaa; margin-top: 8px;">بەهۆی زیادبوونی فرۆشتن لە یابان، نرخی زێو کەمێک دابەزی.</p>
+            </div>
+            
+            <div class="news-card">
+                <span class="impact-tag positive">نەوت</span>
+                <h4>گرژییەکانی ڕۆژهەڵاتی ناوەڕاست</h4>
+                <p style="font-size: 13px; color: #aaa; margin-top: 8px;">کاریگەری ڕاستەوخۆی هەیە لەسەر بەرزبوونەوەی نرخی نەوتی برێنت.</p>
+            </div>
+        </div>
+
+        <!-- Screen 3: Meta Chart (Full Screen) -->
+        <div id="chart-screen" class="screen">
+            <div id="tradingview_widget"></div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-bar">
+            <div class="nav-btn active" onclick="showScreen('home', this)">
+                <i class="fas fa-home"></i><span>Home</span>
+            </div>
+            <div class="nav-btn" onclick="showScreen('news', this)">
+                <i class="fas fa-newspaper"></i><span>News</span>
+            </div>
+            <div class="nav-btn meta-btn" onclick="showScreen('chart-screen', this)">
+                <i class="fas fa-chart-area"></i>
+            </div>
+            <div class="nav-btn">
+                <i class="fas fa-robot"></i><span>AI</span>
+            </div>
+            <div class="nav-btn">
+                <i class="fas fa-wallet"></i><span>Rates</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- SDKs -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // 1. Navigation Logic
+        function showScreen(screenId, btn) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(screenId).classList.add('active');
+            btn.classList.add('active');
+
+            if(screenId === 'chart-screen') {
+                loadAdvancedChart();
+            }
+        }
+
+        // 2. MetaTrader Style Chart (With Indicators)
+        function loadAdvancedChart() {
+            new TradingView.widget({
+                "autosize": true,
+                "symbol": "OANDA:XAUUSD",
+                "interval": "15",
+                "timezone": "Asia/Baghdad",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "toolbar_bg": "#f1f3f6",
+                "enable_publishing": false,
+                "hide_top_toolbar": false,
+                "hide_legend": false,
+                "save_image": false,
+                "container_id": "tradingview_widget",
+                "studies": [
+                    "RSI@tv-basicstudies",
+                    "MASimple@tv-basicstudies",
+                    "StochasticRSI@tv-basicstudies"
+                ],
+                "show_popup_button": true,
+                "popup_width": "1000",
+                "popup_height": "650"
+            });
+        }
+
+        // 3. Firebase (Optional - Connect your DB here)
+        /*
+        const config = { apiKey: "...", ... };
+        firebase.initializeApp(config);
+        const db = firebase.firestore();
+        */
+
+    </script>
+</body>
+</html>
