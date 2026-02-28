@@ -3,304 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Okey Grand Master - Full Project</title>
+    <title>MarketX Pro | Live Terminal</title>
     
-    <!-- External Libraries -->
+    <!-- SDKs -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --gold: linear-gradient(135deg, #f1c40f 0%, #d4ac0d 100%);
-            --diamond: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
-            --emerald: radial-gradient(circle, #064e3b 0%, #022c22 100%);
-            --glass: rgba(255, 255, 255, 0.08);
-            --bg-dark: #050505;
+            --bg: #000000; --card: #0a0a0a;
+            --accent: #00f2ff; --secondary: #bd00ff;
+            --up: #00ffa3; --down: #ff3366;
+            --text: #ffffff; --glass-border: rgba(255, 255, 255, 0.08);
+            --vip-gold: #ffd700; --star-blue: #0088cc;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; background: var(--bg-dark); font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text); overflow: hidden; height: 100vh; user-select: none; }
+        .app-container { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; position: relative; display: flex; flex-direction: column; }
 
-        /* --- Screens --- */
-        .screen { display: none; height: 100vh; width: 100vw; flex-direction: column; overflow: hidden; animation: fadeIn 0.4s ease; }
-        .screen.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Header */
+        .main-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); z-index: 1000; border-bottom: 1px solid var(--glass-border); }
+        .logo-text { font-weight: 900; font-size: 20px; background: linear-gradient(to right, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
+        .live-clock { font-size: 11px; color: #777; font-weight: bold; background: rgba(255,255,255,0.03); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--glass-border); }
 
-        /* --- Top Bar Stats --- */
-        .top-stats { height: 60px; background: #111; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 2px solid #d4ac0d; }
-        .cur-box { background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 20px; border: 1px solid #f1c40f; color: #f1c40f; font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 5px; }
-        .cur-box.dia { border-color: #00d2ff; color: #00d2ff; }
+        /* Navigation */
+        nav.bottom-bar { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 92%; background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(25px); border-radius: 40px; display: flex; justify-content: space-around; padding: 14px; border: 1px solid var(--glass-border); z-index: 2000; box-shadow: 0 15px 35px rgba(0,0,0,0.7); }
+        .nav-btn { color: #444; font-size: 22px; cursor: pointer; transition: 0.3s; position: relative; }
+        .nav-btn.active { color: var(--accent); transform: translateY(-5px); }
+        .meta-btn { width: 52px; height: 52px; background: var(--accent); color: #000; border-radius: 50%; margin-top: -40px; border: 6px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 22px; }
 
-        /* --- 1. Login/Splash Screen --- */
-        #loginScreen { background: radial-gradient(circle, #2c3e50, #000); justify-content: center; align-items: center; text-align: center; }
-        .logo-main { font-size: 50px; color: #f1c40f; text-shadow: 0 0 20px #f1c40f; font-weight: 900; margin-bottom: 20px; }
-        .btn-gold { background: var(--gold); border: none; padding: 15px 60px; border-radius: 30px; font-weight: 900; font-size: 18px; cursor: pointer; color: #333; }
+        /* Screens */
+        .screen { display: none; flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 140px; animation: screenIn 0.4s ease-out; }
+        .screen.active { display: block; }
+        @keyframes screenIn { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* --- 2. Elite Lobby (6 Tables) --- */
-        .lobby-info { text-align: center; padding: 8px; font-size: 12px; color: #4ade80; background: rgba(74, 222, 128, 0.1); }
-        .grid-tables { flex: 1; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; padding-bottom: 100px; }
-        .t-card { background: var(--glass); border-radius: 25px; padding: 20px 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(15px); position: relative; }
-        .t-card h4 { color: gold; margin: 8px 0; font-size: 14px; }
-        .t-bet { font-size: 20px; font-weight: 900; }
-        .view-players { font-size: 10px; color: #3498db; margin-top: 5px; cursor: pointer; }
+        /* Assets */
+        .section-title { font-size: 11px; color: #555; margin: 25px 0 15px; display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; }
+        .asset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .asset-card { background: var(--card); border: 1px solid var(--glass-border); padding: 16px; border-radius: 20px; transition: 0.3s; position: relative; }
+        .asset-card.up { border-right: 4px solid var(--up); }
+        .asset-card.down { border-right: 4px solid var(--down); }
+        .price-val { font-size: 16px; font-weight: 800; margin-top: 8px; color: var(--text); }
+        .change-val { font-size: 10px; margin-top: 4px; font-weight: bold; }
 
-        /* --- 3. VIP Profile Screen --- */
-        #profileScreen { background: #000; }
-        .p-header { padding: 40px 20px; text-align: center; background: radial-gradient(circle, #222, #000); border-bottom: 2px solid gold; }
-        .p-av-big { width: 100px; height: 100px; border-radius: 50%; border: 3px solid gold; box-shadow: 0 0 20px gold; }
-        .xp-bar { width: 80%; height: 8px; background: #333; margin: 15px auto; border-radius: 5px; overflow: hidden; }
-        .xp-fill { width: 70%; height: 100%; background: var(--gold); }
-        .p-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px; }
-        .p-stat-box { background: var(--glass); padding: 15px 5px; border-radius: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        /* Chart Terminal */
+        .chart-terminal { display: flex; flex-direction: column; height: 100%; background: #000; }
+        .chart-tabs { display: flex; overflow-x: auto; padding: 12px; gap: 10px; background: #050505; border-bottom: 1px solid var(--glass-border); scrollbar-width: none; }
+        .c-tab { background: #111; color: #666; border: 1px solid #222; padding: 8px 18px; border-radius: 12px; font-size: 11px; font-weight: 800; white-space: nowrap; }
+        .c-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
-        /* --- 4. Rewards (Daily & Spin) --- */
-        .reward-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-        .wheel-box { position: relative; width: 280px; height: 280px; border: 8px solid gold; border-radius: 50%; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); background: conic-gradient(#ef4444 0deg 60deg, #3b82f6 60deg 120deg, #f59e0b 120deg 180deg, #10b981 180deg 240deg, #8b5cf6 240deg 300deg, #f97316 300deg 360deg); }
-        .wheel-ptr { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid white; z-index: 10; }
+        /* AI Prediction */
+        .ai-card { background: linear-gradient(135deg, #0a0a0a 0%, #001a1a 100%); border: 1px solid var(--glass-border); padding: 22px; border-radius: 24px; text-align: center; margin-bottom: 20px; }
+        .progress-bar { height: 8px; background: #111; border-radius: 4px; margin: 15px 0; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 10px var(--accent); transition: 0.6s; }
+        .upload-area { border: 2px dashed #222; padding: 40px 20px; border-radius: 24px; text-align: center; cursor: pointer; }
 
-        /* --- 5. Gameplay Screen --- */
-        .game-table { flex: 1; margin: 10px; background: var(--emerald); border: 8px solid #1e293b; border-radius: 50px; position: relative; box-shadow: inset 0 0 100px #000; }
-        .player { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 10; }
-        .av-ring { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; position: relative; background: #333; }
-        .active-p .av-ring { border-color: gold; box-shadow: 0 0 15px gold; }
-        
-        /* Floating Emoji Logic */
-        .emoji-pop { position: absolute; font-size: 30px; bottom: 60px; display: none; animation: floatUp 2s forwards; z-index: 50; }
-        @keyframes floatUp { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; transform: translateY(-30px) scale(1.2); } 100% { opacity: 0; transform: translateY(-80px); } }
+        /* VIP & Stars */
+        .profile-hero { text-align: center; padding: 30px 20px; background: radial-gradient(circle at top, #111 0%, #000 100%); border-radius: 30px; border: 1px solid var(--glass-border); margin-bottom: 25px; }
+        .u-avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); padding: 4px; margin-bottom: 15px; }
+        .star-box { background: linear-gradient(90deg, #001f3f 0%, #000814 100%); border: 1px solid var(--star-blue); padding: 20px; border-radius: 22px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .star-btn { background: var(--star-blue); color: #fff; border: none; padding: 10px 18px; border-radius: 14px; font-weight: 900; display: flex; align-items: center; gap: 6px; }
 
-        .p-top { top: 10px; left: 50%; transform: translateX(-50%); }
-        .p-left { left: 15px; top: 35%; }
-        .p-right { right: 15px; top: 35%; }
-
-        .deck-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-        .draw-btn { width: 55px; height: 75px; background: white; border-radius: 5px; box-shadow: 0 5px 0 #ccc; color: #111; font-weight: 900; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
-        /* Rack Logic */
-        .rack-container { height: 235px; background: #1a0f0a; border-top: 5px solid #000; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 5px; background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png'); }
-        .rack-row { display: grid; grid-template-columns: repeat(14, 1fr); gap: 5px; width: 98%; max-width: 850px; height: 90px; }
-        .tile { background: white; border-radius: 4px; aspect-ratio: 2/2.8; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: 900; color: #222; box-shadow: 0 4px 0 #ddd; cursor: pointer; }
-        
-        .red { color: #dc2626; } .blue { color: #2563eb; } .black { color: #111; } .yellow { color: #d97706; }
-
-        /* --- Global Nav --- */
-        .bottom-nav { height: 75px; background: #111; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; position: fixed; bottom: 0; width: 100%; z-index: 1000; }
-        .nav-link { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #777; cursor: pointer; }
-        .nav-link.active { color: #f1c40f; }
-        .nav-link i { font-size: 22px; margin-bottom: 5px; }
-
+        /* News */
+        .news-card { background: var(--card); padding: 16px; border-radius: 18px; margin-bottom: 15px; border-left: 4px solid var(--secondary); }
     </style>
 </head>
 <body>
 
-    <!-- Header Stats (Visible in App) -->
-    <div id="appHeader" class="top-stats" style="display:none;">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=VIP" style="width:38px; border-radius:50%; border:2px solid gold;">
-            <span style="font-size:12px;"><b>Melinde B.</b></span>
-        </div>
-        <div class="currency-container" style="display:flex; gap:8px;">
-            <div class="cur-box"><i class="fas fa-coins"></i> <span id="coins">250,500</span></div>
-            <div class="cur-box dia"><i class="fas fa-gem"></i> <span id="diamonds">150</span></div>
-        </div>
-    </div>
+    <div class="app-container">
+        <header class="main-header">
+            <div class="logo-text">MARKETX PRO</div>
+            <div id="clock" class="live-clock">00:00:00</div>
+        </header>
 
-    <!-- 1. LOGIN / SPLASH -->
-    <div id="loginScreen" class="screen active">
-        <div class="logo-main">OKEY PLUS<br><span style="font-size:25px;">ULTIMATE</span></div>
-        <button class="btn-gold" onclick="showScreen('lobbyScreen')">دەستپێکردن</button>
-    </div>
-
-    <!-- 2. LOBBY (6 TABLES) -->
-    <div id="lobbyScreen" class="screen">
-        <div class="lobby-info"><i class="fas fa-circle" style="font-size:8px;"></i> ١,٥٤٠ یاریزان ئۆنلاینن</div>
-        <div class="grid-tables" id="tablesList"></div>
-    </div>
-
-    <!-- 3. PROFILE -->
-    <div id="profileScreen" class="screen">
-        <div class="p-header">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=VIP" class="p-av-big">
-            <h2>Melinde B. <i class="fas fa-crown" style="color:gold;"></i></h2>
-            <div class="xp-bar"><div class="xp-fill"></div></div>
-            <p style="font-size:12px; color:gold;">Master Level 56</p>
-        </div>
-        <div class="p-stats">
-            <div class="p-stat-box"><b>1,540</b>یاری</div>
-            <div class="p-stat-box"><b>89%</b>بردنەوە</div>
-            <div class="p-stat-box"><b>#124</b>پلە</div>
-        </div>
-        <div style="padding:20px;">
-            <button class="btn-gold" style="width:100%; background:var(--diamond); color:white;" onclick="inviteFriend()">بانگهێشتکردنی هاوڕێیان (+50 💎)</button>
-        </div>
-    </div>
-
-    <!-- 4. REWARDS -->
-    <div id="rewardScreen" class="screen">
-        <div class="reward-area">
-            <button class="btn-gold" onclick="alert('خەڵاتی ڕۆژانەت وەرگرت! +5,000 💰')">خەڵاتی ڕۆژانە</button>
-            <div style="position:relative;">
-                <div class="wheel-ptr"></div>
-                <div id="wheel" class="wheel-box"></div>
-            </div>
-            <button class="btn-gold" onclick="spinWheel()">ئێستا بیخولێنەوە</button>
-        </div>
-    </div>
-
-    <!-- 5. GAME ARENA -->
-    <div id="gameScreen" class="screen">
-        <div class="game-table">
-            <div class="player p-top"><div class="av-ring"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=A" style="width:100%"></div></div>
-            <div class="player p-left active-p"><div class="av-ring"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=B" style="width:100%"></div><div class="emoji-pop" id="emoji-pop">😂</div></div>
-            <div class="player p-right"><div class="av-ring"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=C" style="width:100%"></div></div>
-
-            <div class="deck-center">
-                <div class="draw-btn" onclick="drawTile()">Draw</div>
-                <div id="gameMsg" style="margin-top:15px; font-size:12px; font-weight:bold; color:gold;">نۆرەی تۆیە</div>
+        <!-- Home: Live Forex & Crypto -->
+        <div id="home" class="screen active">
+            <div class="section-title"><span><i class="fas fa-chart-line"></i> FOREX & METALS (LIVE)</span></div>
+            <div class="asset-grid" id="forex-list">
+                <div style="color:#444; font-size:12px; padding:20px;">Loading Live Data...</div>
             </div>
 
-            <!-- Reaction Btn -->
-            <div style="position:absolute; left:15px; bottom:15px; font-size:24px;" onclick="sendEmoji()"><i class="fas fa-laugh-beam" style="color:gold;"></i></div>
+            <div class="section-title"><span><i class="fab fa-bitcoin"></i> CRYPTO MARKET (LIVE)</span></div>
+            <div class="asset-grid" id="crypto-list">
+                <div style="color:#444; font-size:12px; padding:20px;">Loading Live Data...</div>
+            </div>
+
+            <div class="section-title"><span><i class="fas fa-money-bill-wave"></i> LOCAL RATES (IQD)</span></div>
+            <div class="asset-grid">
+                <div class="asset-card up"><small>USD / IQD (Parallel)</small><div class="price-val">152,450</div></div>
+                <div class="asset-card down"><small>TOMAN / IQD</small><div class="price-val">62,100</div></div>
+            </div>
         </div>
-        <div class="rack-container">
-            <div class="rack-row" id="row1"></div>
-            <div class="rack-row" id="row2"></div>
+
+        <!-- News & Market Sessions -->
+        <div id="news" class="screen">
+            <h5 class="section-title">Global Sessions (Time in Baghdad)</h5>
+            <div class="profile-hero" style="padding:15px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>London</span><span style="color:var(--up)">● OPEN</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>New York</span><span style="color:var(--up)">● OPEN</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>Tokyo</span><span style="color:#444">● CLOSED</span></div>
+            </div>
+            <h5 class="section-title">NFC & CRYPTO UPDATES</h5>
+            <div id="news-feed"></div>
         </div>
+
+        <!-- Chart Screen -->
+        <div id="chart-screen" class="screen" style="padding:0; overflow:hidden;">
+            <div class="chart-terminal">
+                <div class="chart-tabs">
+                    <button class="c-tab active" onclick="loadChart('OANDA:XAUUSD', this)">GOLD</button>
+                    <button class="c-tab" onclick="loadChart('BINANCE:BTCUSDT', this)">BTC</button>
+                    <button class="c-tab" onclick="loadChart('TVC:USOIL', this)">OIL</button>
+                    <button class="c-tab" onclick="loadChart('CURRENCYCOM:US100', this)">NAS100</button>
+                    <button class="c-tab" onclick="loadChart('FX:EURUSD', this)">EUR/USD</button>
+                </div>
+                <div id="tradingview_widget" style="flex:1;"></div>
+            </div>
+        </div>
+
+        <!-- AI Analysis Screen -->
+        <div id="ai" class="screen">
+            <div class="ai-card">
+                <h4 style="color:var(--accent)">AI SMART TERMINAL</h4>
+                <div class="progress-bar"><div id="ai-progress" class="progress-fill"></div></div>
+                <p id="usage-text" style="font-size:11px; color:#666">Usage: 0 of 3 Free Predictions</p>
+            </div>
+            <div class="upload-area" onclick="runAI()">
+                <i class="fas fa-microchip" style="font-size:40px; color:var(--accent); margin-bottom:15px;"></i>
+                <p>Upload Chart for Analysis</p>
+            </div>
+            <h5 class="section-title">TODAY'S AI FORECASTS</h5>
+            <div id="ai-list"></div>
+        </div>
+
+        <!-- Profile & Telegram Stars -->
+        <div id="stars" class="screen">
+            <div class="profile-hero">
+                <img id="u-pfp" src="https://via.placeholder.com/90" class="u-avatar">
+                <h2 id="u-name">User</h2>
+                <div id="account-status" style="font-size:10px; color:#555; margin-top:10px;">STANDARD ACCOUNT</div>
+            </div>
+
+            <h5 class="section-title">VIP PREMIUM (TELEGRAM STARS)</h5>
+            <div class="star-box">
+                <div><strong>Monthly VIP</strong><br><small style="color:#00ffaa">Full AI + Real-time Signals</small></div>
+                <button class="star-btn" onclick="payWithStars(49)">⭐️ 49</button>
+            </div>
+            <div class="star-box" style="border-color:var(--vip-gold)">
+                <div><strong>Lifetime Pass</strong><br><small style="color:var(--vip-gold)">Pay once, use forever</small></div>
+                <button class="star-btn" style="background:var(--vip-gold); color:#000;" onclick="payWithStars(199)">⭐️ 199</button>
+            </div>
+
+            <div class="asset-grid" style="margin-top:20px;">
+                <div class="asset-card" style="text-align:center;" onclick="invite()"><i class="fas fa-user-plus"></i><br><small>Invite</small></div>
+                <div class="asset-card" style="text-align:center;" onclick="window.location.reload()"><i class="fas fa-sync"></i><br><small>Refresh</small></div>
+            </div>
+        </div>
+
+        <nav class="bottom-bar">
+            <div class="nav-btn active" onclick="showTab('home', this)"><i class="fas fa-home"></i></div>
+            <div class="nav-btn" onclick="showTab('news', this)"><i class="fas fa-newspaper"></i></div>
+            <div class="nav-btn meta-btn" onclick="showTab('chart-screen', this)"><i class="fas fa-chart-line"></i></div>
+            <div class="nav-btn" onclick="showTab('ai', this)"><i class="fas fa-robot"></i></div>
+            <div class="nav-btn" onclick="showTab('stars', this)"><i class="fas fa-user-circle"></i></div>
+        </nav>
     </div>
 
-    <!-- Bottom Nav -->
-    <div id="bottomNav" class="bottom-nav" style="display:none;">
-        <div class="nav-link active" onclick="showScreen('lobbyScreen', this)"><i class="fas fa-th-large"></i>مێزەکان</div>
-        <div class="nav-link" onclick="showScreen('rewardScreen', this)"><i class="fas fa-gift"></i>خەڵات</div>
-        <div class="nav-link" onclick="showScreen('profileScreen', this)"><i class="fas fa-user-circle"></i>پڕۆفایل</div>
-    </div>
-
-    <!-- Audio (External) -->
-    <audio id="drawSnd" src="https://assets.mixkit.co/sfx/preview/mixkit-card-game-single-card-flip-744.mp3"></audio>
-    <audio id="discardSnd" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-down-2849.mp3"></audio>
-
+    <!-- Scripts -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        const colors = ['red', 'blue', 'black', 'yellow'];
-        let myTilesCount = 14;
+        // --- 1. SETTINGS & KEYS ---
+        const tg = window.Telegram.WebApp;
+        tg.expand();
 
-        // 1. Navigation
-        function showScreen(id, el) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            
-            const header = document.getElementById('appHeader');
-            const nav = document.getElementById('bottomNav');
-            
-            if(id === 'loginScreen') { header.style.display = 'none'; nav.style.display = 'none'; }
-            else { header.style.display = 'flex'; nav.style.display = 'flex'; }
+        const TD_KEY = "27a5e0dbe13d43ce99773474acbe048e"; // Twelve Data
+        const CG_KEY = "CG-1kwVhbektE8TArXdHLdnx3M1"; // CoinGecko
 
-            if(el) {
-                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-                el.classList.add('active');
-            }
-            if(id === 'gameScreen') initGame();
-            if(window.Telegram) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+        // --- 2. LIVE DATA ENGINE ---
+        async function fetchLiveMarket() {
+            try {
+                // Fetch Crypto (20 Coins)
+                const cryptoRes = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin,ripple,cardano,avalanche-2,polkadot,dogecoin,matic-network,tron,chainlink,shiba-inu,litecoin,bitcoin-cash,near,uniswap,aptos,arbitrum,cosmos&vs_currencies=usd&include_24hr_change=true`, {
+                    headers: { 'x-cg-demo-api-key': CG_KEY }
+                });
+                const cryptoData = await cryptoRes.json();
+
+                // Fetch Forex (20 Symbols)
+                const forexRes = await fetch(`https://api.twelvedata.com/price?symbol=XAU/USD,XAG/USD,EUR/USD,GBP/USD,USD/JPY,USD/CAD,AUD/USD,NZD/USD,USD/CHF,EUR/JPY,GBP/JPY,EUR/GBP,EUR/CAD,NAS100,IXIC,WTI/USD,PLATINUM,COPPER,SPX,DJI&apikey=${TD_KEY}`);
+                const forexData = await forexRes.json();
+
+                renderLiveGrids(cryptoData, forexData);
+            } catch (err) { console.error("Market Fetch Error:", err); }
         }
 
-        // 2. Build 6 Tables
-        function buildLobby() {
-            const list = document.getElementById('tablesList');
-            const tables = [
-                {n: "Knights Hall", b: "5K", p: "4"}, {n: "VIP Lounge", b: "50K", p: "2"},
-                {n: "Grand Arena", b: "100K", p: "4"}, {n: "Speed Run", b: "25K", p: "2"},
-                {n: "Diamond Club", b: "500K", p: "4"}, {n: "Legend Cup", b: "1M", p: "4"}
+        function renderLiveGrids(crypto, forex) {
+            // Render Crypto Grid
+            const cList = [
+                {s:"BTC", id:"bitcoin"}, {s:"ETH", id:"ethereum"}, {s:"SOL", id:"solana"}, {s:"BNB", id:"binancecoin"},
+                {s:"XRP", id:"ripple"}, {s:"ADA", id:"cardano"}, {s:"AVAX", id:"avalanche-2"}, {s:"DOT", id:"polkadot"}
             ];
-            list.innerHTML = '';
-            tables.forEach(t => {
-                const card = document.createElement('div');
-                card.className = 't-card';
-                card.innerHTML = `<h4>${t.n}</h4><div class="t-bet">💰 ${t.b}</div><div class="view-players" onclick="alert('یاریزانەکان: هاوکار، سازگار، شوان')">View Players</div><br><button class="btn-gold" style="padding:6px 20px; font-size:12px;" onclick="showScreen('gameScreen')">Play</button>`;
-                list.appendChild(card);
+            document.getElementById('crypto-list').innerHTML = cList.map(item => {
+                let p = crypto[item.id].usd;
+                let ch = crypto[item.id].usd_24h_change;
+                let t = ch >= 0 ? "up" : "down";
+                return `<div class="asset-card ${t}"><small>${item.s}</small><div class="price-val">$${p.toLocaleString()}</div><div class="change-val" style="color:var(--${t})">${ch.toFixed(2)}%</div></div>`;
+            }).join('');
+
+            // Render Forex Grid
+            const fList = [
+                {s:"GOLD", id:"XAU/USD"}, {s:"SILVER", id:"XAG/USD"}, {s:"NASDAQ", id:"NAS100"}, {s:"EUR/USD", id:"EUR/USD"},
+                {s:"GBP/USD", id:"GBP/USD"}, {s:"USD/JPY", id:"USD/JPY"}, {s:"OIL (WTI)", id:"WTI/USD"}, {s:"S&P 500", id:"SPX"}
+            ];
+            document.getElementById('forex-list').innerHTML = fList.map(item => {
+                let p = forex[item.id] ? parseFloat(forex[item.id].price).toFixed(2) : "N/A";
+                return `<div class="asset-card up"><small>${item.s}</small><div class="price-val">${p}</div></div>`;
+            }).join('');
+        }
+
+        // --- 3. CHART ENGINE ---
+        let currentSymbol = "OANDA:XAUUSD";
+        function loadChart(sym, btn) {
+            currentSymbol = sym;
+            document.querySelectorAll('.c-tab').forEach(t => t.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            
+            document.getElementById('tradingview_widget').innerHTML = '';
+            new TradingView.widget({
+                "autosize": true, "symbol": sym, "interval": "15", "timezone": "Asia/Baghdad",
+                "theme": "dark", "style": "1", "container_id": "tradingview_widget",
+                "hide_side_toolbar": true, "studies": [], "backgroundColor": "#000000",
+                "overrides": { "mainSeriesProperties.showVolume": false }
+            });
+            tg.HapticFeedback.impactOccurred('medium');
+        }
+
+        // --- 4. AI & VIP SYSTEM ---
+        let usage = localStorage.getItem('marketx_usage') || 0;
+        let isVIP = localStorage.getItem('marketx_vip') === 'true';
+
+        function runAI() {
+            if(!isVIP && usage >= 3) {
+                tg.HapticFeedback.notificationOccurred('error');
+                alert("Please Upgrade to VIP for more predictions!");
+                showTab('stars', document.querySelector('.fa-user-circle'));
+                return;
+            }
+            usage++;
+            localStorage.setItem('marketx_usage', usage);
+            updateAIUI();
+            tg.HapticFeedback.impactOccurred('heavy');
+            alert("🤖 AI Analysis: BULLISH trend detected! Target 2210.00 for Gold.");
+        }
+
+        function updateAIUI() {
+            if(isVIP) {
+                document.getElementById('ai-progress').style.width = "100%";
+                document.getElementById('usage-text').innerText = "UNLIMITED VIP ACCESS";
+            } else {
+                let p = (usage / 3) * 100;
+                document.getElementById('ai-progress').style.width = p + "%";
+                document.getElementById('usage-text').innerText = `Usage: ${usage} of 3 Free Predictions`;
+            }
+        }
+
+        function payWithStars(stars) {
+            tg.showConfirm(`Pay ⭐️ ${stars} Stars to unlock VIP?`, (ok) => {
+                if(ok) {
+                    isVIP = true;
+                    localStorage.setItem('marketx_vip', 'true');
+                    document.getElementById('account-status').innerText = "VIP PREMIUM ACCOUNT";
+                    document.getElementById('account-status').style.color = "var(--vip-gold)";
+                    updateAIUI();
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
             });
         }
 
-        // 3. Game Logic (14/15 Rule)
-        function initGame() {
-            const r1 = document.getElementById('row1');
-            const r2 = document.getElementById('row2');
-            r1.innerHTML = ''; r2.innerHTML = '';
-            for(let i=0; i<14; i++) {
-                (i < 7 ? r1 : r2).appendChild(createTile());
-            }
-            myTilesCount = 14;
-            updateStatus();
+        // --- 5. CORE SYSTEM ---
+        function showTab(id, btn) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(btn) btn.classList.add('active');
+            if(id === 'chart-screen') loadChart(currentSymbol);
+            tg.HapticFeedback.impactOccurred('light');
         }
 
-        function createTile() {
-            const num = Math.floor(Math.random() * 13) + 1;
-            const color = colors[Math.floor(Math.random() * 4)];
-            const div = document.createElement('div');
-            div.className = `tile ${color}`;
-            div.innerHTML = `<span>${num}</span>`;
-            div.onclick = () => {
-                if(myTilesCount === 15) {
-                    div.remove();
-                    myTilesCount = 14;
-                    document.getElementById('discardSnd').play();
-                    updateStatus();
-                    if(window.Telegram) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                } else {
-                    alert("سەرەتا بەردێک ڕابکێشە!");
+        // Setup AI List
+        const aiForecasts = [
+            {s:"XAU/USD", f:"Bullish | Target: 2215", t:"up"}, {s:"BTC/USD", f:"Strong Buy | Target: 98k", t:"up"},
+            {s:"NAS100", f:"Bearish | Correction expected", t:"down"}, {s:"OIL", f:"Neutral | Side movement", t:"#666"}
+        ];
+        document.getElementById('ai-list').innerHTML = aiForecasts.map(f => `<div class="news-card"><strong>${f.s}</strong><p style="font-size:12px; color:#aaa">${f.f}</p></div>`).join('');
+
+        // Setup News Feed
+        document.getElementById('news-feed').innerHTML = [`Bitcoin ETF hits new high`, `US Inflation report pending`, `Gold breaks resistance at 2180`].map(n => `<div class="news-card"><small>RECENT</small><p style="font-size:13px">${n}</p></div>`).join('');
+
+        // Clock & Intervals
+        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
+        setInterval(fetchLiveMarket, 60000); // Update every minute
+
+        // Init
+        window.onload = () => {
+            fetchLiveMarket();
+            updateAIUI();
+            const user = tg.initDataUnsafe?.user;
+            if(user) {
+                document.getElementById('u-name').innerText = user.first_name;
+                if(user.photo_url) document.getElementById('u-pfp').src = user.photo_url;
+                if(isVIP) {
+                    document.getElementById('account-status').innerText = "VIP PREMIUM ACCOUNT";
+                    document.getElementById('account-status').style.color = "var(--vip-gold)";
                 }
-            };
-            return div;
-        }
-
-        function drawTile() {
-            if(myTilesCount === 14) {
-                document.getElementById('row1').appendChild(createTile());
-                myTilesCount = 15;
-                document.getElementById('drawSnd').play();
-                updateStatus();
-                if(window.Telegram) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
             }
+        };
+
+        function invite() {
+            tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/YourBot&text=Join me on MarketX Pro!`);
         }
-
-        function updateStatus() {
-            const msg = document.getElementById('gameMsg');
-            msg.innerText = myTilesCount === 14 ? "نۆرەی تۆیە: بەردێک ڕابکێشە" : "١٥ بەرد: دانەیەک فڕێ بدە";
-            msg.style.color = myTilesCount === 14 ? "gold" : "#ff4757";
-        }
-
-        // 4. Rewards & Social
-        let spinning = false;
-        function spinWheel() {
-            if(spinning) return;
-            spinning = true;
-            const wheel = document.getElementById('wheel');
-            const deg = Math.floor(Math.random() * 3600) + 1440;
-            wheel.style.transform = `rotate(${deg}deg)`;
-            setTimeout(() => { spinning = false; alert("پیرۆزە! ٢٠,٠٠٠ کۆینت بردەوە!"); }, 4000);
-        }
-
-        function sendEmoji() {
-            const emojis = ['😂', '🔥', '😱', '👍', '😡'];
-            const pop = document.getElementById('emoji-pop');
-            pop.innerText = emojis[Math.floor(Math.random()*emojis.length)];
-            pop.style.display = 'block';
-            setTimeout(() => pop.style.display = 'none', 2000);
-        }
-
-        function inviteFriend() {
-            if(window.Telegram) {
-                window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=https://t.me/YourBot&text=وەرە ئۆکەی بکەین! 💎`);
-            }
-        }
-
-        // Sortable Setup
-        [document.getElementById('row1'), document.getElementById('row2')].forEach(r => {
-            new Sortable(r, { group: 'okey', animation: 150 });
-        });
-
-        // Start
-        buildLobby();
-        if(window.Telegram) window.Telegram.WebApp.expand();
-
     </script>
 </body>
 </html>
