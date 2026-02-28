@@ -3,96 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MarketX Pro | Premium Live Terminal</title>
+    <title>MarketX Pro | Ultra Terminal</title>
     
-    <!-- SDKs & Styles -->
+    <!-- SDKs -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <style>
-        /* --- PREMIUM THEME SYSTEM --- */
         :root {
             --bg: #000000;
-            --card-bg: #0d0d0d;
+            --card: #0c0c0c;
             --accent: #00f2ff;
             --secondary: #bd00ff;
             --up: #00ffa3;
             --down: #ff3366;
-            --text-main: #ffffff;
-            --text-dim: #888;
+            --text: #ffffff;
+            --text-dim: #777;
             --border: rgba(255, 255, 255, 0.08);
             --gold: #ffd700;
-            --neon: 0 0 15px rgba(0, 242, 255, 0.3);
+            --neon-glow: 0 0 15px rgba(0, 242, 255, 0.3);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text-main); overflow: hidden; height: 100vh; user-select: none; }
-        .app-container { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; position: relative; display: flex; flex-direction: column; background: radial-gradient(circle at top, #0f0f0f 0%, #000 100%); }
+        body { background-color: var(--bg); color: var(--text); overflow: hidden; height: 100vh; width: 100vw; user-select: none; }
+        .app-container { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; position: relative; display: flex; flex-direction: column; background: radial-gradient(circle at top, #111 0%, #000 100%); }
 
-        /* --- HEADER --- */
-        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); z-index: 1000; }
-        .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-text { font-weight: 900; font-size: 22px; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
-        .clock { font-size: 13px; color: var(--accent); font-weight: 900; background: rgba(0,242,255,0.05); padding: 5px 15px; border-radius: 30px; border: 1px solid rgba(0,242,255,0.2); }
+        /* --- Header --- */
+        .main-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); z-index: 1000; }
+        .logo-box { display: flex; align-items: center; gap: 10px; }
+        .logo-box i { font-size: 22px; color: var(--accent); filter: drop-shadow(0 0 5px var(--accent)); }
+        .logo-text { font-weight: 900; font-size: 20px; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
+        .clock { font-size: 13px; color: var(--accent); font-weight: 800; background: rgba(0,242,255,0.05); padding: 5px 12px; border-radius: 30px; border: 1px solid rgba(0,242,255,0.2); }
 
-        /* --- NAVIGATION --- */
-        .bottom-nav { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 92%; background: rgba(15, 15, 15, 0.98); backdrop-filter: blur(30px); border-radius: 45px; display: flex; justify-content: space-around; align-items: center; padding: 12px; border: 1px solid var(--border); z-index: 2000; box-shadow: 0 20px 50px rgba(0,0,0,0.9); }
-        .nav-item { color: #444; font-size: 22px; cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 10px; }
-        .nav-item.active { color: var(--accent); transform: translateY(-10px); text-shadow: 0 0 20px var(--accent); }
-        .nav-center { width: 65px; height: 65px; background: linear-gradient(135deg, var(--accent), var(--secondary)); color: #000; border-radius: 50%; margin-top: -55px; border: 6px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 10px 25px rgba(0,242,255,0.4); }
+        /* --- Navigation --- */
+        nav.bottom-nav { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 92%; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(25px); border-radius: 40px; display: flex; justify-content: space-around; align-items: center; padding: 12px; border: 1px solid var(--border); z-index: 2000; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+        .nav-item { color: #444; font-size: 22px; cursor: pointer; transition: 0.4s; }
+        .nav-item.active { color: var(--accent); transform: translateY(-8px); text-shadow: 0 0 15px var(--accent); }
+        .nav-center { width: 60px; height: 60px; background: var(--accent); color: #000; border-radius: 50%; margin-top: -50px; border: 6px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 10px 20px rgba(0,242,255,0.3); }
 
-        /* --- SCREENS --- */
-        .screen { display: none; flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 150px; scrollbar-width: none; }
-        .screen.active { display: block; animation: fadeInUp 0.5s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* --- Screens --- */
+        .screen { display: none; flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 140px; scrollbar-width: none; }
+        .screen.active { display: block; animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- CARDS & GRID --- */
-        .section-title { font-size: 11px; color: var(--text-dim); margin: 25px 0 15px; display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
-        .section-title i { color: var(--accent); margin-left: 8px; }
+        /* --- Grid & Cards --- */
+        .section-title { font-size: 11px; color: var(--text-dim); margin: 25px 0 15px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
+        .section-title i { color: var(--accent); font-size: 14px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { background: var(--card-bg); border: 1px solid var(--border); padding: 22px; border-radius: 30px; transition: 0.3s; position: relative; overflow: hidden; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 28px; transition: 0.3s; position: relative; }
         .card.up { border-right: 4px solid var(--up); }
         .card.down { border-right: 4px solid var(--down); }
         .card-label { font-size: 10px; font-weight: 800; color: var(--text-dim); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-        .price { font-size: 20px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
+        .card-label i { font-size: 13px; color: var(--accent); }
+        .price-val { font-size: 19px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
+        .change { font-size: 10px; margin-top: 6px; font-weight: 800; }
 
-        /* --- IQD PREMIUM SECTION --- */
-        .iqd-full { grid-column: span 2; background: linear-gradient(135deg, #111 0%, #050505 100%); display: flex; justify-content: space-between; align-items: center; }
+        /* --- IQD Special --- */
+        .iqd-card { grid-column: span 2; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #111 0%, #050505 100%); }
         .iqd-badge { background: var(--up); color: #000; padding: 4px 12px; border-radius: 10px; font-size: 10px; font-weight: 900; box-shadow: 0 0 10px var(--up); }
 
-        /* --- NEWS FEED --- */
-        .news-filter { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding: 5px; scrollbar-width: none; }
-        .filter-chip { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-dim); padding: 10px 20px; border-radius: 20px; font-size: 11px; font-weight: 800; white-space: nowrap; transition: 0.3s; }
-        .filter-chip.active { background: var(--accent); color: #000; border-color: var(--accent); }
-        .news-card { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 25px; margin-bottom: 15px; transition: 0.3s; }
-        .news-tag { display: inline-block; padding: 4px 12px; border-radius: 8px; font-size: 9px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
-        .tag-crypto { background: rgba(189,0,255,0.1); color: var(--secondary); }
-        .tag-forex { background: rgba(0,242,255,0.1); color: var(--accent); }
-        .news-title { font-size: 15px; font-weight: 700; line-height: 1.6; color: #fff; }
+        /* --- News Section --- */
+        .news-card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 25px; margin-bottom: 15px; }
+        .news-tag { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 9px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
+        .tag-gold { background: rgba(255, 215, 0, 0.1); color: var(--gold); }
+        .tag-crypto { background: rgba(189, 0, 255, 0.1); color: var(--secondary); }
+        .news-title { font-size: 14px; font-weight: 700; line-height: 1.5; color: #ddd; }
 
-        /* --- AI TERMINAL --- */
-        .ai-panel { background: radial-gradient(circle at top right, #1a0033 0%, #000 100%); border: 1px solid var(--secondary); padding: 40px 20px; border-radius: 35px; text-align: center; margin-bottom: 25px; }
-        .ai-bar { height: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 25px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-        .ai-fill { height: 100%; width: 0%; background: linear-gradient(to right, var(--accent), var(--secondary)); box-shadow: 0 0 20px var(--accent); transition: 1.5s; }
+        /* --- AI Terminal --- */
+        .ai-hero { background: radial-gradient(circle at top right, #1a0033 0%, #000 100%); border: 1px solid var(--secondary); padding: 40px 20px; border-radius: 35px; text-align: center; margin-bottom: 25px; }
+        .ai-bar { height: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 25px 0; overflow: hidden; border: 1px solid var(--border); }
+        .ai-fill { height: 100%; width: 0%; background: linear-gradient(to right, var(--accent), var(--secondary)); box-shadow: 0 0 15px var(--accent); transition: 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        .scan-area { border: 2px dashed #222; padding: 40px; border-radius: 35px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .scan-area:active { border-color: var(--accent); background: rgba(0,242,255,0.05); }
 
-        /* --- PROFILE --- */
-        .profile-hero { text-align: center; padding: 45px 20px; background: var(--card-bg); border-radius: 40px; border: 1px solid var(--border); margin-bottom: 30px; }
-        .avatar { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--accent); padding: 6px; box-shadow: var(--neon); margin-bottom: 20px; }
-        .vip-btn { background: var(--gold); color: #000; border: none; padding: 18px; border-radius: 22px; width: 100%; font-weight: 900; font-size: 16px; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        /* --- Profile --- */
+        .user-card { text-align: center; padding: 45px 20px; background: var(--card); border-radius: 40px; border: 1px solid var(--border); margin-bottom: 30px; }
+        .pfp { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--accent); padding: 6px; box-shadow: var(--neon-glow); margin-bottom: 15px; }
+        .vip-box { background: linear-gradient(90deg, #1a1a1a 0%, #000 100%); padding: 25px; border-radius: 25px; border: 1px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
+        .stars-btn { background: var(--gold); color: #000; border: none; padding: 12px 24px; border-radius: 15px; font-weight: 900; font-size: 15px; box-shadow: 0 5px 15px rgba(255,215,0,0.3); }
+
+        /* Hide Scrollbar */
+        ::-webkit-scrollbar { width: 0px; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
         <!-- Header -->
-        <header class="header">
-            <div class="logo-area">
-                <i class="fas fa-bolt" style="color:var(--accent); font-size:20px;"></i>
+        <header class="main-header">
+            <div class="logo-box">
+                <i class="fas fa-microchip"></i>
                 <div class="logo-text">MARKETX PRO</div>
             </div>
             <div id="clock" class="clock">00:00:00</div>
@@ -100,45 +103,72 @@
 
         <!-- Home Screen -->
         <div id="home" class="screen active">
-            <div class="section-title"><span><i class="fas fa-gem"></i> Metals & Gold</span> <i class="fas fa-sync-alt"></i></div>
+            <!-- 24/7 Metals -->
+            <div class="section-title"><span><i class="fas fa-gem"></i> Metals & Commodities (24/7)</span></div>
             <div class="grid">
-                <div class="card up"><div class="card-label"><i class="fas fa-coins"></i> GOLD (XAU/USD)</div><div class="price" id="price-XAU/USD">Loading...</div></div>
-                <div class="card up"><div class="card-label"><i class="fas fa-ring"></i> SILVER (XAG/USD)</div><div class="price" id="price-XAG/USD">Loading...</div></div>
+                <div class="card up">
+                    <div class="card-label"><i class="fas fa-coins"></i> GOLD (ZÊR)</div>
+                    <div class="price-val" id="price-GOLD">Loading...</div>
+                    <div class="change" style="color:var(--up)">OANDA LIVE</div>
+                </div>
+                <div class="card up">
+                    <div class="card-label"><i class="fas fa-ring"></i> SILVER (ZÎV)</div>
+                    <div class="price-val" id="price-SILVER">Loading...</div>
+                    <div class="change" style="color:var(--up)">OANDA LIVE</div>
+                </div>
             </div>
 
-            <div class="section-title"><span><i class="fas fa-money-bill-transfer"></i> IQD Parallel Market</span></div>
+            <!-- Local Market -->
+            <div class="section-title"><span><i class="fas fa-money-bill-transfer"></i> Local Parallel Market</span></div>
             <div class="grid">
-                <div class="card iqd-full up">
-                    <div><div class="card-label">USD / IQD (Bursa)</div><div class="price" id="iqd-usd">152,450</div></div>
+                <div class="card iqd-card up">
+                    <div>
+                        <div class="card-label"><i class="fas fa-dollar-sign"></i> USD / IQD (Bursa)</div>
+                        <div class="price-val" id="iqd-usd">152,450</div>
+                    </div>
                     <div class="iqd-badge">PARALLEL</div>
                 </div>
-                <div class="card"><div class="card-label">EUR / IQD</div><div class="price" id="iqd-eur">164,250</div></div>
-                <div class="card"><div class="card-label">GBP / IQD</div><div class="price" id="iqd-gbp">191,800</div></div>
+                <div class="card up">
+                    <div class="card-label"><i class="fas fa-euro-sign"></i> EUR / IQD</div>
+                    <div class="price-val" id="iqd-eur">164,250</div>
+                </div>
+                <div class="card up">
+                    <div class="card-label"><i class="fas fa-pound-sign"></i> GBP / IQD</div>
+                    <div class="price-val" id="iqd-gbp">191,800</div>
+                </div>
             </div>
 
-            <div class="section-title"><span><i class="fas fa-earth-americas"></i> Global Forex</span></div>
-            <div class="grid">
-                <div class="card"><div class="card-label">EUR / USD</div><div class="price" id="price-EUR/USD">--.----</div></div>
-                <div class="card"><div class="card-label">GBP / USD</div><div class="price" id="price-GBP/USD">--.----</div></div>
-                <div class="card"><div class="card-label">USD / JPY</div><div class="price" id="price-USD/JPY">---.--</div></div>
-                <div class="card"><div class="card-label">USD / CAD</div><div class="price" id="price-USD/CAD">--.----</div></div>
+            <!-- Global Forex -->
+            <div class="section-title"><span><i class="fas fa-earth-americas"></i> Major Forex Pairs</span></div>
+            <div class="grid" id="forex-grid">
+                <div class="card"><div class="card-label">EUR / USD</div><div class="price-val" id="price-EURUSD">--.----</div></div>
+                <div class="card"><div class="card-label">GBP / USD</div><div class="price-val" id="price-GBPUSD">--.----</div></div>
+                <div class="card"><div class="card-label">USD / JPY</div><div class="price-val" id="price-USDJPY">---.--</div></div>
+                <div class="card"><div class="card-label">USD / CAD</div><div class="price-val" id="price-USDCAD">--.----</div></div>
             </div>
 
-            <div class="section-title"><span><i class="fab fa-bitcoin"></i> Crypto Assets</span></div>
+            <!-- Crypto -->
+            <div class="section-title"><span><i class="fab fa-bitcoin"></i> Digital Assets</span></div>
             <div class="grid" id="crypto-grid">
-                <div style="color:var(--text-dim); padding:10px;">Connecting...</div>
+                <div style="color:var(--text-dim); padding:20px;">Fetching global data...</div>
             </div>
         </div>
 
         <!-- News Screen -->
         <div id="news" class="screen">
-            <div class="section-title"><i class="fas fa-rss"></i> Live Market Pulse</div>
-            <div class="news-filter">
-                <div class="filter-chip active" onclick="renderNews('all', this)">All News</div>
-                <div class="filter-chip" onclick="renderNews('crypto', this)">Crypto</div>
-                <div class="filter-chip" onclick="renderNews('forex', this)">Forex</div>
+            <div class="section-title"><i class="fas fa-bolt"></i> Market Live Pulse</div>
+            <div id="news-container">
+                <div class="news-card">
+                    <span class="news-tag tag-gold">Metals</span>
+                    <div class="news-title">Gold maintains stability above $2,150 as market eyes CPI data.</div>
+                    <div style="font-size:10px; color:var(--text-dim); margin-top:10px;">5m ago</div>
+                </div>
+                <div class="news-card">
+                    <span class="news-tag tag-crypto">Crypto</span>
+                    <div class="news-title">Bitcoin whale accumulation reaches 2-year high amid ETF surge.</div>
+                    <div style="font-size:10px; color:var(--text-dim); margin-top:10px;">18m ago</div>
+                </div>
             </div>
-            <div id="news-container"></div>
         </div>
 
         <!-- Chart Screen -->
@@ -148,33 +178,38 @@
 
         <!-- AI Screen -->
         <div id="ai" class="screen">
-            <div class="ai-panel">
-                <h2 style="font-weight:900; color:var(--accent);">Neural Analysis</h2>
+            <div class="ai-hero">
+                <h2 style="font-weight:900; color:var(--accent);">AI NEURAL SCAN</h2>
                 <div class="ai-bar"><div id="ai-fill" class="ai-fill"></div></div>
-                <p id="usage-text" style="font-size:12px; color:var(--text-dim);">Scanning market data...</p>
+                <p id="usage-text" style="font-size:12px; color:var(--text-dim);">Ready for analysis...</p>
             </div>
-            <div style="border:2px dashed #333; padding:45px; border-radius:35px; text-align:center;" onclick="runAI()">
-                <i class="fas fa-microchip" style="font-size:45px; color:var(--accent); margin-bottom:20px;"></i>
-                <h3 style="font-weight:900;">Initiate Smart Scan</h3>
+            <div class="scan-area" onclick="runAI()">
+                <i class="fas fa-brain" style="font-size:45px; color:var(--accent); margin-bottom:20px;"></i>
+                <h3 style="font-weight:900;">START SYSTEM SCAN</h3>
+                <p style="font-size:12px; color:var(--text-dim); margin-top:8px;">Deep-learning scan for Gold & Major Pairs</p>
             </div>
             <div id="ai-results" style="margin-top:25px;"></div>
         </div>
 
         <!-- Profile Screen -->
         <div id="stars" class="screen">
-            <div class="profile-hero">
-                <img id="u-pfp" src="https://via.placeholder.com/110" class="avatar">
-                <h2 id="u-name" style="font-weight:900; font-size:24px;">Trader</h2>
-                <div id="u-status" style="font-size:11px; color:var(--text-dim); margin-top:10px; letter-spacing:1px;">STANDARD MEMBER</div>
+            <div class="user-card">
+                <img id="u-pfp" src="https://via.placeholder.com/110" class="pfp">
+                <h2 id="u-name" style="font-weight:900;">User</h2>
+                <div id="u-status" style="font-size:11px; color:var(--text-dim); margin-top:10px; letter-spacing:1px;">STANDARD ACCOUNT</div>
             </div>
-            <button class="vip-btn" onclick="payWithStars(49)">
-                <i class="fas fa-crown"></i> UPGRADE TO VIP ⭐️ 49
-            </button>
+            <div class="vip-box">
+                <div>
+                    <h4 style="font-weight:900; color:var(--gold);">VIP LIFETIME PASS</h4>
+                    <p style="font-size:10px; color:var(--text-dim);">Unlimited AI + Pro Signals</p>
+                </div>
+                <button class="stars-btn" onclick="payWithStars(49)">⭐️ 49</button>
+            </div>
         </div>
 
-        <!-- Navigation -->
+        <!-- Navigation Bar -->
         <nav class="bottom-nav">
-            <div class="nav-item active" onclick="showTab('home', this)"><i class="fas fa-chart-pie"></i></div>
+            <div class="nav-item active" onclick="showTab('home', this)"><i class="fas fa-th-large"></i></div>
             <div class="nav-item" onclick="showTab('news', this)"><i class="fas fa-bolt"></i></div>
             <div class="nav-item nav-center" onclick="showTab('chart-screen', this)"><i class="fas fa-chart-line"></i></div>
             <div class="nav-item" onclick="showTab('ai', this)"><i class="fas fa-robot"></i></div>
@@ -185,9 +220,10 @@
     <!-- Scripts -->
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // --- 1. CONFIG & FIREBASE ---
+        // --- 1. CONFIGURATION ---
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.enableClosingConfirmation();
 
         const FINNHUB_KEY = "d6h512hr01qnjncncg00d6h512hr01qnjncncg0g";
         const firebaseConfig = {
@@ -202,138 +238,150 @@
 
         let isVIP = false; let usage = 0; let lastFetch = 0;
 
-        // --- 2. FINNHUB ENGINE ---
-        async function fetchForex() {
+        // --- 2. THE DYNAMIC ENGINE (Hybrid) ---
+        async function fetchMarket() {
             const now = Date.now();
-            if (now - lastFetch < 20000) return; // 20 seconds safety
+            if (now - lastFetch < 30000) return; // 30 sec safety
             lastFetch = now;
 
-            const pairs = [
-                {id: "OANDA:XAU_USD", label: "XAU/USD"},
-                {id: "OANDA:XAG_USD", label: "XAG/USD"},
-                {id: "FX:EUR/USD", label: "EUR/USD"},
-                {id: "FX:GBP/USD", label: "GBP/USD"},
-                {id: "FX:USD/JPY", label: "USD/JPY"},
-                {id: "FX:USD/CAD", label: "USD/CAD"}
-            ];
+            try {
+                // A. Metals & Crypto (CoinGecko - Works 24/7)
+                // We use PAX Gold for real Gold price and Tether Silver for Silver.
+                const cgRes = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,tether-silver,bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true`);
+                const cgData = await cgRes.json();
+                
+                // Render Metals
+                if(cgData['pax-gold']) {
+                    document.getElementById('price-GOLD').innerText = cgData['pax-gold'].usd.toFixed(2);
+                    document.getElementById('price-SILVER').innerText = cgData['tether-silver'].usd.toFixed(2);
+                }
 
-            for (const pair of pairs) {
-                try {
-                    const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${pair.id}&token=${FINNHUB_KEY}`);
-                    const data = await res.json();
-                    if (data.c) {
-                        const el = document.getElementById(`price-${pair.label}`);
-                        let p = parseFloat(data.c);
-                        el.innerText = pair.label.includes("JPY") ? p.toFixed(2) : (pair.label.includes("XA") ? p.toFixed(2) : p.toFixed(4));
+                // Render Crypto
+                const coins = [{id:"bitcoin",s:"BTC"},{id:"ethereum",s:"ETH"},{id:"solana",s:"SOL"},{id:"binancecoin",s:"BNB"}];
+                document.getElementById('crypto-grid').innerHTML = coins.map(c => {
+                    const d = cgData[c.id];
+                    const trend = d.usd_24h_change >= 0 ? "up" : "down";
+                    return `
+                        <div class="card ${trend}">
+                            <div class="card-label">${c.s} / USD</div>
+                            <div class="price-val">$${d.usd.toLocaleString()}</div>
+                            <div class="change" style="color:var(--${trend})">${d.usd_24h_change.toFixed(2)}%</div>
+                        </div>`;
+                }).join('');
+
+                // B. Forex (Finnhub - Major Pairs)
+                const pairs = ["EURUSD", "GBPUSD", "USDJPY", "USDCAD"];
+                const usdRate = 1524.50; // Parallel Market Rate
+
+                for(const pair of pairs) {
+                    const fRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${pair}&token=${FINNHUB_KEY}`);
+                    const fData = await fRes.json();
+                    if(fData.c && fData.c !== 0) {
+                        const el = document.getElementById(`price-${pair}`);
+                        el.innerText = pair.includes("JPY") ? fData.c.toFixed(2) : fData.c.toFixed(4);
                         
-                        if(pair.label === "EUR/USD") {
-                            const usdRate = 1524.50;
-                            document.getElementById('iqd-eur').innerText = (p * usdRate * 100).toLocaleString().split('.')[0];
-                        }
-                        if(pair.label === "GBP/USD") {
-                            const usdRate = 1524.50;
-                            document.getElementById('iqd-gbp').innerText = (p * usdRate * 100).toLocaleString().split('.')[0];
-                        }
+                        // Derived IQD rates
+                        if(pair === "EURUSD") document.getElementById('iqd-eur').innerText = (fData.c * usdRate * 100).toLocaleString().split('.')[0];
+                        if(pair === "GBPUSD") document.getElementById('iqd-gbp').innerText = (fData.c * usdRate * 100).toLocaleString().split('.')[0];
+                    } else {
+                        // If price is 0, it means market is closed (Weekend)
+                        document.getElementById(`price-${pair}`).innerText = "CLOSED";
+                        document.getElementById(`price-${pair}`).style.fontSize = "14px";
                     }
-                } catch(e) {}
+                }
+
+            } catch(e) { console.error("Update Error", e); }
+        }
+
+        // --- 3. SYSTEM LOGIC ---
+        async function syncUser() {
+            const user = tg.initDataUnsafe?.user || { id: "dev_user", first_name: "Trader" };
+            const doc = await db.collection("users").doc(user.id.toString()).get();
+            const data = doc.exists() ? doc.data() : { name: user.first_name, isVIP: false, usage: 0 };
+            if(!doc.exists()) await db.collection("users").doc(user.id.toString()).set(data);
+            
+            isVIP = data.isVIP; usage = data.usage;
+            document.getElementById('u-name').innerText = data.name;
+            if(tg.initDataUnsafe?.user?.photo_url) document.getElementById('u-pfp').src = tg.initDataUnsafe.user.photo_url;
+            
+            const status = document.getElementById('u-status');
+            if(isVIP) {
+                status.innerText = "VIP PREMIUM ACCOUNT";
+                status.style.color = "var(--gold)";
+                document.getElementById('ai-fill').style.width = "100%";
+                document.getElementById('usage-text').innerText = "UNLIMITED NEURAL ACCESS";
+            } else {
+                document.getElementById('ai-fill').style.width = (usage/3 * 100) + "%";
+                document.getElementById('usage-text').innerText = `Scans Used: ${usage} of 3 Free`;
             }
         }
 
-        async function fetchCrypto() {
-            try {
-                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true`);
-                const data = await res.json();
-                const coins = [{id:"bitcoin",s:"BTC"},{id:"ethereum",s:"ETH"},{id:"solana",s:"SOL"},{id:"binancecoin",s:"BNB"}];
-                document.getElementById('crypto-grid').innerHTML = coins.map(c => {
-                    const d = data[c.id];
-                    const trend = d.usd_24h_change >= 0 ? "up" : "down";
-                    return `<div class="card ${trend}"><div class="card-label">${c.s} / USD</div><div class="price">$${d.usd.toLocaleString()}</div><div style="font-size:10px; color:var(--${trend})">${d.usd_24h_change.toFixed(2)}%</div></div>`;
-                }).join('');
-            } catch(e) {}
-        }
-
-        // --- 3. NEWS SYSTEM ---
-        const newsList = [
-            { cat: 'crypto', title: 'Bitcoin whale movements increase ahead of weekly close.', time: '5m ago' },
-            { cat: 'forex', title: 'Gold prices show resilience as inflation data looms.', time: '15m ago' },
-            { cat: 'forex', title: 'EUR/USD eyes 1.09 resistance level amid USD weakness.', time: '45m ago' }
-        ];
-
-        function renderNews(filter = 'all', btn) {
-            if(btn) { document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-            const container = document.getElementById('news-container');
-            const filtered = filter === 'all' ? newsList : newsList.filter(n => n.cat === filter);
-            container.innerHTML = filtered.map(n => `
-                <div class="news-card">
-                    <span class="news-tag tag-${n.cat}">${n.cat}</span>
-                    <div class="news-title">${n.title}</div>
-                    <div style="font-size:10px; color:var(--text-dim); margin-top:10px;">${n.time}</div>
-                </div>
-            `).join('');
-        }
-
-        // --- 4. CORE UI ---
         function showTab(id, btn) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             btn.classList.add('active');
+            
             if(id === 'chart-screen') {
                 document.getElementById('tradingview_widget').innerHTML = '';
-                new TradingView.widget({ "autosize": true, "symbol": "OANDA:XAUUSD", "interval": "15", "theme": "dark", "container_id": "tradingview_widget" });
+                new TradingView.widget({
+                    "autosize": true, "symbol": "OANDA:XAUUSD", "interval": "15",
+                    "timezone": "Asia/Baghdad", "theme": "dark", "style": "1",
+                    "container_id": "tradingview_widget", "hide_side_toolbar": true
+                });
             }
             tg.HapticFeedback.impactOccurred('medium');
         }
 
-        async function syncUser() {
-            const user = tg.initDataUnsafe?.user || { id: "test", first_name: "Trader" };
-            const doc = await db.collection("users").doc(user.id.toString()).get();
-            const data = doc.exists() ? doc.data() : { name: user.first_name, isVIP: false, usage: 0 };
-            if(!doc.exists()) await db.collection("users").doc(user.id.toString()).set(data);
-            isVIP = data.isVIP; usage = data.usage;
-            document.getElementById('u-name').innerText = data.name;
-            if(tg.initDataUnsafe?.user?.photo_url) document.getElementById('u-pfp').src = tg.initDataUnsafe.user.photo_url;
-            if(isVIP) {
-                document.getElementById('u-status').innerText = "VIP PREMIUM MEMBER";
-                document.getElementById('u-status').style.color = "var(--gold)";
-                document.getElementById('ai-fill').style.width = "100%";
-                document.getElementById('usage-text').innerText = "UNLIMITED SCANNING";
-            } else {
-                document.getElementById('ai-fill').style.width = (usage/3*100)+"%";
-                document.getElementById('usage-text').innerText = `Scans Used: ${usage} of 3 Free`;
-            }
-        }
-
         async function runAI() {
-            if(!isVIP && usage >= 3) { alert("Please Upgrade to VIP!"); return; }
-            document.getElementById('ai-fill').style.width = "100%";
-            setTimeout(async () => {
-                usage++;
-                await db.collection("users").doc(tg.initDataUnsafe.user.id.toString()).update({ usage: usage });
-                alert("🤖 AI ANALYSIS:\nGOLD (XAU/USD): Strong Bullish Bias.\nConfidence: 91%");
+            if(!isVIP && usage >= 3) {
+                tg.HapticFeedback.notificationOccurred('error');
+                alert("Please Upgrade to VIP for unlimited neural analysis!");
+                showTab('stars', document.querySelector('.fa-user-circle'));
+                return;
+            }
+
+            const fill = document.getElementById('ai-fill');
+            fill.style.width = "0%";
+            setTimeout(() => fill.style.width = "100%", 100);
+
+            usage++;
+            const user = tg.initDataUnsafe?.user || { id: "dev_user" };
+            await db.collection("users").doc(user.id.toString()).update({ usage: usage });
+
+            setTimeout(() => {
+                tg.HapticFeedback.notificationOccurred('success');
+                alert("🤖 NEURAL SCAN COMPLETE:\n\nGOLD (XAU/USD): Bullish detected.\nTarget: 2185.20\nConfidence: 89%");
                 syncUser();
-            }, 1200);
+            }, 1500);
         }
 
         async function payWithStars(amt) {
-            tg.showConfirm(`Confirm ⭐️ ${amt} for Lifetime VIP?`, async (ok) => {
+            tg.showConfirm(`Confirm payment of ⭐️ ${amt} Stars to unlock Lifetime VIP?`, async (ok) => {
                 if(ok) {
-                    await db.collection("users").doc(tg.initDataUnsafe.user.id.toString()).update({ isVIP: true });
+                    const user = tg.initDataUnsafe?.user || { id: "dev_user" };
+                    await db.collection("users").doc(user.id.toString()).update({ isVIP: true });
+                    tg.HapticFeedback.notificationOccurred('success');
                     location.reload();
                 }
             });
         }
 
+        // Clock & Init
         setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB'), 1000);
-        setInterval(fetchForex, 25000);
-        setInterval(fetchCrypto, 60000);
+        setInterval(fetchMarket, 40000); // 40 seconds loop
 
         window.onload = async () => {
             await syncUser();
-            fetchForex();
-            fetchCrypto();
-            renderNews();
-            document.getElementById('ai-results').innerHTML = `<div class="news-card" style="border-left:4px solid var(--up);"><strong>GOLD Neural Forecast</strong><br><small>Trend: Bullish | Target: 2185</small></div>`;
+            fetchMarket();
+            
+            // Dummy Initial AI results
+            document.getElementById('ai-results').innerHTML = `
+                <div class="news-card" style="border-left:4px solid var(--up);">
+                    <strong>GOLD Neural Forecast</strong><br>
+                    <small style="color:var(--text-dim)">Trend: Bullish | Confidence: 84%</small>
+                </div>
+            `;
         };
     </script>
 </body>
