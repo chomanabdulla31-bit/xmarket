@@ -3,386 +3,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MarketX Pro | Ultra Terminal</title>
+    <title>Okey Plus 2026 Pro</title>
     
-    <!-- SDKs -->
+    <!-- External Assets -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@900&family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg: #000000;
-            --card: #0c0c0c;
-            --accent: #00f2ff;
-            --secondary: #bd00ff;
-            --up: #00ffa3;
-            --down: #ff3366;
-            --text: #ffffff;
-            --text-dim: #777;
-            --border: rgba(255, 255, 255, 0.08);
-            --gold: #ffd700;
-            --neon-glow: 0 0 15px rgba(0, 242, 255, 0.3);
+            --gold: #ffcc00;
+            --gold-dark: #b8860b;
+            --wood: #2c1505;
+            --felt: radial-gradient(circle, #1b5e20 0%, #002b05 100%);
+            --tile-white: #fdfdfd;
+            --bg-dark: #0a0a0a;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text); overflow: hidden; height: 100vh; width: 100vw; user-select: none; }
-        .app-container { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; position: relative; display: flex; flex-direction: column; background: radial-gradient(circle at top, #111 0%, #000 100%); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
+        body { 
+            margin: 0; background: var(--bg-dark); 
+            font-family: 'Noto Sans Arabic', sans-serif; 
+            height: 100vh; overflow: hidden; color: white; 
+        }
 
-        /* --- Header --- */
-        .main-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); z-index: 1000; }
-        .logo-box { display: flex; align-items: center; gap: 10px; }
-        .logo-box i { font-size: 22px; color: var(--accent); filter: drop-shadow(0 0 5px var(--accent)); }
-        .logo-text { font-weight: 900; font-size: 20px; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
-        .clock { font-size: 13px; color: var(--accent); font-weight: 800; background: rgba(0,242,255,0.05); padding: 5px 12px; border-radius: 30px; border: 1px solid rgba(0,242,255,0.2); }
+        /* --- 1. LOGIN SCREEN --- */
+        #loginScreen {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1601933470484-93c4e3271708?auto=format&fit=crop&q=80&w=1000');
+            background-size: cover; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .ok-logo-box {
+            position: relative; margin-bottom: 40px; text-align: center;
+            animation: bounceIn 1.2s;
+        }
+        .big-ok {
+            font-family: 'Kanit', sans-serif; font-size: 110px; font-weight: 900;
+            background: linear-gradient(to bottom, #fff, var(--gold), #ff8c00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(255,204,0,0.5));
+            line-height: 0.8;
+        }
+        .plus-sign { font-size: 40px; color: white; -webkit-text-fill-color: white; position: absolute; top: 10px; right: -30px; }
+        
+        .login-card {
+            width: 85%; max-width: 380px; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(15px); border-radius: 30px; padding: 35px 25px;
+            border: 2px solid var(--gold-dark); text-align: center; box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+        .custom-input {
+            width: 100%; padding: 15px; border-radius: 15px; border: 2px solid #333;
+            background: #111; color: white; margin-bottom: 20px; font-size: 18px; text-align: center;
+        }
+        .btn-gold {
+            background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: #000; border: none; padding: 16px; border-radius: 15px;
+            font-weight: 900; font-size: 18px; width: 100%; cursor: pointer;
+            box-shadow: 0 6px 0 #5a4000; transition: 0.1s;
+        }
+        .btn-gold:active { transform: translateY(4px); box-shadow: 0 2px 0 #5a4000; }
 
-        /* --- Navigation --- */
-        nav.bottom-nav { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 92%; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(25px); border-radius: 40px; display: flex; justify-content: space-around; align-items: center; padding: 12px; border: 1px solid var(--border); z-index: 2000; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
-        .nav-item { color: #444; font-size: 22px; cursor: pointer; transition: 0.4s; }
-        .nav-item.active { color: var(--accent); transform: translateY(-8px); text-shadow: 0 0 15px var(--accent); }
-        .nav-center { width: 60px; height: 60px; background: var(--accent); color: #000; border-radius: 50%; margin-top: -50px; border: 6px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 10px 20px rgba(0,242,255,0.3); }
+        /* --- 2. LOBBY SCREEN --- */
+        .screen { display: none; height: 100vh; width: 100vw; flex-direction: column; }
+        .screen.active { display: flex; }
+        .app-header {
+            height: 70px; background: #151515; display: flex; justify-content: space-between;
+            align-items: center; padding: 0 20px; border-bottom: 3px solid var(--gold-dark);
+        }
+        .user-status { display: flex; align-items: center; gap: 10px; background: #000; padding: 6px 15px; border-radius: 25px; border: 1px solid #444; }
+        .coin-tag { color: var(--gold); font-weight: 900; font-size: 17px; }
 
-        /* --- Screens --- */
-        .screen { display: none; flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 140px; scrollbar-width: none; }
-        .screen.active { display: block; animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .lobby-content { flex: 1; overflow-y: auto; padding: 20px; display: grid; gap: 15px; }
+        .miz-card {
+            background: linear-gradient(135deg, #1e1e1e, #0f0f0f);
+            border-radius: 20px; padding: 20px; border: 1px solid #333;
+            display: flex; justify-content: space-between; align-items: center;
+            animation: fadeInUp 0.5s;
+        }
 
-        /* --- Grid & Cards --- */
-        .section-title { font-size: 11px; color: var(--text-dim); margin: 25px 0 15px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
-        .section-title i { color: var(--accent); font-size: 14px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 28px; transition: 0.3s; position: relative; }
-        .card.up { border-right: 4px solid var(--up); }
-        .card.down { border-right: 4px solid var(--down); }
-        .card-label { font-size: 10px; font-weight: 800; color: var(--text-dim); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-        .card-label i { font-size: 13px; color: var(--accent); }
-        .price-val { font-size: 19px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
-        .change { font-size: 10px; margin-top: 6px; font-weight: 800; }
+        /* --- 3. PROFILE SCREEN --- */
+        .profile-header { position: relative; height: 200px; background: var(--gold-dark); border-bottom-left-radius: 50%; border-bottom-right-radius: 50%; margin-bottom: 60px; }
+        .profile-av-box {
+            position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 120px; border-radius: 50%; border: 5px solid var(--bg-dark);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); overflow: hidden; background: #222;
+        }
+        .av-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 20px;
+            background: #111; border-radius: 20px; margin: 20px;
+        }
+        .av-item { width: 100%; aspect-ratio: 1; border-radius: 12px; border: 2px solid transparent; cursor: pointer; }
+        .av-item.active { border-color: var(--gold); transform: scale(1.1); }
 
-        /* --- IQD Special --- */
-        .iqd-card { grid-column: span 2; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #111 0%, #050505 100%); }
-        .iqd-badge { background: var(--up); color: #000; padding: 4px 12px; border-radius: 10px; font-size: 10px; font-weight: 900; box-shadow: 0 0 10px var(--up); }
+        /* --- 4. GAME ARENA --- */
+        .game-arena { flex: 1; background: var(--felt); position: relative; border: 12px solid var(--wood); margin: 5px; border-radius: 35px; box-shadow: inset 0 0 100px #000; overflow: hidden; }
+        .p-info { position: absolute; background: rgba(0,0,0,0.6); border: 1px solid #555; border-radius: 10px; padding: 5px 10px; display: flex; align-items: center; gap: 8px; font-size: 12px; }
+        .p-top { top: 15px; left: 50%; transform: translateX(-50%); }
 
-        /* --- News Section --- */
-        .news-card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 25px; margin-bottom: 15px; }
-        .news-tag { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 9px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
-        .tag-gold { background: rgba(255, 215, 0, 0.1); color: var(--gold); }
-        .tag-crypto { background: rgba(189, 0, 255, 0.1); color: var(--secondary); }
-        .news-title { font-size: 14px; font-weight: 700; line-height: 1.5; color: #ddd; }
+        .center-objects { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 30px; }
+        .tile-deck { 
+            width: 55px; height: 75px; background: #fff; border-radius: 8px; box-shadow: 0 6px 0 #ccc; 
+            display: flex; justify-content: center; align-items: center; font-size: 32px; color: #333; font-weight: 900; cursor: pointer;
+        }
+        .discard-pile { width: 55px; height: 75px; border: 3px dashed rgba(255,255,255,0.2); border-radius: 8px; position: relative; }
 
-        /* --- AI Terminal --- */
-        .ai-hero { background: radial-gradient(circle at top right, #1a0033 0%, #000 100%); border: 1px solid var(--secondary); padding: 40px 20px; border-radius: 35px; text-align: center; margin-bottom: 25px; }
-        .ai-bar { height: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 25px 0; overflow: hidden; border: 1px solid var(--border); }
-        .ai-fill { height: 100%; width: 0%; background: linear-gradient(to right, var(--accent), var(--secondary)); box-shadow: 0 0 15px var(--accent); transition: 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-        .scan-area { border: 2px dashed #222; padding: 40px; border-radius: 35px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .scan-area:active { border-color: var(--accent); background: rgba(0,242,255,0.05); }
+        /* --- RACK SYSTEM --- */
+        .rack-system { background: #2c1505; padding: 15px; border-top: 5px solid #000; }
+        .rack-row {
+            background: #4a2c16; border-radius: 10px; min-height: 85px; margin-bottom: 10px;
+            display: flex; align-items: center; padding: 10px; gap: 10px;
+            box-shadow: inset 0 4px 15px #000; border: 1px solid #5d4037; overflow-x: auto;
+        }
 
-        /* --- Profile --- */
-        .user-card { text-align: center; padding: 45px 20px; background: var(--card); border-radius: 40px; border: 1px solid var(--border); margin-bottom: 30px; }
-        .pfp { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--accent); padding: 6px; box-shadow: var(--neon-glow); margin-bottom: 15px; }
-        .vip-box { background: linear-gradient(90deg, #1a1a1a 0%, #000 100%); padding: 25px; border-radius: 25px; border: 1px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
-        .stars-btn { background: var(--gold); color: #000; border: none; padding: 12px 24px; border-radius: 15px; font-weight: 900; font-size: 15px; box-shadow: 0 5px 15px rgba(255,215,0,0.3); }
+        /* --- TILES (BEARDAKAN) --- */
+        .tile {
+            width: 42px; height: 62px; background: var(--tile-white); border-radius: 6px;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 5px 0 #bbb, 0 8px 15px rgba(0,0,0,0.4);
+            cursor: grab; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+        .tile.flipped { transform: rotateY(180deg); }
+        .tile span { font-family: 'Kanit'; font-size: 26px; font-weight: 900; backface-visibility: hidden; }
+        .tile .back {
+            position: absolute; width: 100%; height: 100%; background: #c0392b;
+            border-radius: 6px; backface-visibility: hidden; transform: rotateY(180deg);
+            display: flex; justify-content: center; align-items: center; border: 2px solid #fff;
+        }
+        .tile .back::after { content: 'OK'; color: rgba(255,255,255,0.3); font-weight: 900; }
 
-        /* Hide Scrollbar */
-        ::-webkit-scrollbar { width: 0px; }
+        .red { color: #d63031; } .blue { color: #0984e3; } .black { color: #2d3436; } .yellow { color: #f39c12; }
+
+        /* --- FOOTER NAV --- */
+        .footer-nav {
+            height: 75px; background: #111; border-top: 1px solid #222;
+            display: flex; justify-content: space-around; align-items: center;
+        }
+        .nav-btn { color: #666; text-align: center; font-size: 11px; flex: 1; transition: 0.3s; }
+        .nav-btn.active { color: var(--gold); }
+        .nav-btn i { font-size: 24px; display: block; margin-bottom: 5px; }
+
+        /* Win Modal */
+        .win-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 1000; text-align: center; }
+
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- Header -->
-        <header class="main-header">
-            <div class="logo-box">
-                <i class="fas fa-microchip"></i>
-                <div class="logo-text">MARKETX PRO</div>
-            </div>
-            <div id="clock" class="clock">00:00:00</div>
-        </header>
-
-        <!-- Home Screen -->
-        <div id="home" class="screen active">
-            <!-- 24/7 Metals -->
-            <div class="section-title"><span><i class="fas fa-gem"></i> Metals & Commodities (24/7)</span></div>
-            <div class="grid">
-                <div class="card up">
-                    <div class="card-label"><i class="fas fa-coins"></i> GOLD (ZÊR)</div>
-                    <div class="price-val" id="price-GOLD">Loading...</div>
-                    <div class="change" style="color:var(--up)">OANDA LIVE</div>
-                </div>
-                <div class="card up">
-                    <div class="card-label"><i class="fas fa-ring"></i> SILVER (ZÎV)</div>
-                    <div class="price-val" id="price-SILVER">Loading...</div>
-                    <div class="change" style="color:var(--up)">OANDA LIVE</div>
-                </div>
-            </div>
-
-            <!-- Local Market -->
-            <div class="section-title"><span><i class="fas fa-money-bill-transfer"></i> Local Parallel Market</span></div>
-            <div class="grid">
-                <div class="card iqd-card up">
-                    <div>
-                        <div class="card-label"><i class="fas fa-dollar-sign"></i> USD / IQD (Bursa)</div>
-                        <div class="price-val" id="iqd-usd">152,450</div>
-                    </div>
-                    <div class="iqd-badge">PARALLEL</div>
-                </div>
-                <div class="card up">
-                    <div class="card-label"><i class="fas fa-euro-sign"></i> EUR / IQD</div>
-                    <div class="price-val" id="iqd-eur">164,250</div>
-                </div>
-                <div class="card up">
-                    <div class="card-label"><i class="fas fa-pound-sign"></i> GBP / IQD</div>
-                    <div class="price-val" id="iqd-gbp">191,800</div>
-                </div>
-            </div>
-
-            <!-- Global Forex -->
-            <div class="section-title"><span><i class="fas fa-earth-americas"></i> Major Forex Pairs</span></div>
-            <div class="grid" id="forex-grid">
-                <div class="card"><div class="card-label">EUR / USD</div><div class="price-val" id="price-EURUSD">--.----</div></div>
-                <div class="card"><div class="card-label">GBP / USD</div><div class="price-val" id="price-GBPUSD">--.----</div></div>
-                <div class="card"><div class="card-label">USD / JPY</div><div class="price-val" id="price-USDJPY">---.--</div></div>
-                <div class="card"><div class="card-label">USD / CAD</div><div class="price-val" id="price-USDCAD">--.----</div></div>
-            </div>
-
-            <!-- Crypto -->
-            <div class="section-title"><span><i class="fab fa-bitcoin"></i> Digital Assets</span></div>
-            <div class="grid" id="crypto-grid">
-                <div style="color:var(--text-dim); padding:20px;">Fetching global data...</div>
-            </div>
+    <!-- 1. LOGIN SCREEN -->
+    <div id="loginScreen" class="screen active">
+        <div class="ok-logo-box">
+            <div class="big-ok">OK</div>
+            <div class="plus-sign">+</div>
         </div>
-
-        <!-- News Screen -->
-        <div id="news" class="screen">
-            <div class="section-title"><i class="fas fa-bolt"></i> Market Live Pulse</div>
-            <div id="news-container">
-                <div class="news-card">
-                    <span class="news-tag tag-gold">Metals</span>
-                    <div class="news-title">Gold maintains stability above $2,150 as market eyes CPI data.</div>
-                    <div style="font-size:10px; color:var(--text-dim); margin-top:10px;">5m ago</div>
-                </div>
-                <div class="news-card">
-                    <span class="news-tag tag-crypto">Crypto</span>
-                    <div class="news-title">Bitcoin whale accumulation reaches 2-year high amid ETF surge.</div>
-                    <div style="font-size:10px; color:var(--text-dim); margin-top:10px;">18m ago</div>
-                </div>
-            </div>
+        <div class="login-card">
+            <input type="text" id="usernameInput" class="custom-input" placeholder="ناوی بەکارهێنەر بنووسە...">
+            <button class="btn-gold" onclick="performLogin()">دەستپێکردن</button>
+            <p style="color:#777; font-size:12px; margin-top:15px;">بەخێربێیت بۆ جیهانی ئۆکێ پڵەس ٢٠٢٦</p>
         </div>
-
-        <!-- Chart Screen -->
-        <div id="chart-screen" class="screen" style="padding:0; overflow:hidden;">
-            <div id="tradingview_widget" style="height:100%;"></div>
-        </div>
-
-        <!-- AI Screen -->
-        <div id="ai" class="screen">
-            <div class="ai-hero">
-                <h2 style="font-weight:900; color:var(--accent);">AI NEURAL SCAN</h2>
-                <div class="ai-bar"><div id="ai-fill" class="ai-fill"></div></div>
-                <p id="usage-text" style="font-size:12px; color:var(--text-dim);">Ready for analysis...</p>
-            </div>
-            <div class="scan-area" onclick="runAI()">
-                <i class="fas fa-brain" style="font-size:45px; color:var(--accent); margin-bottom:20px;"></i>
-                <h3 style="font-weight:900;">START SYSTEM SCAN</h3>
-                <p style="font-size:12px; color:var(--text-dim); margin-top:8px;">Deep-learning scan for Gold & Major Pairs</p>
-            </div>
-            <div id="ai-results" style="margin-top:25px;"></div>
-        </div>
-
-        <!-- Profile Screen -->
-        <div id="stars" class="screen">
-            <div class="user-card">
-                <img id="u-pfp" src="https://via.placeholder.com/110" class="pfp">
-                <h2 id="u-name" style="font-weight:900;">User</h2>
-                <div id="u-status" style="font-size:11px; color:var(--text-dim); margin-top:10px; letter-spacing:1px;">STANDARD ACCOUNT</div>
-            </div>
-            <div class="vip-box">
-                <div>
-                    <h4 style="font-weight:900; color:var(--gold);">VIP LIFETIME PASS</h4>
-                    <p style="font-size:10px; color:var(--text-dim);">Unlimited AI + Pro Signals</p>
-                </div>
-                <button class="stars-btn" onclick="payWithStars(49)">⭐️ 49</button>
-            </div>
-        </div>
-
-        <!-- Navigation Bar -->
-        <nav class="bottom-nav">
-            <div class="nav-item active" onclick="showTab('home', this)"><i class="fas fa-th-large"></i></div>
-            <div class="nav-item" onclick="showTab('news', this)"><i class="fas fa-bolt"></i></div>
-            <div class="nav-item nav-center" onclick="showTab('chart-screen', this)"><i class="fas fa-chart-line"></i></div>
-            <div class="nav-item" onclick="showTab('ai', this)"><i class="fas fa-robot"></i></div>
-            <div class="nav-item" onclick="showTab('stars', this)"><i class="fas fa-user-circle"></i></div>
-        </nav>
     </div>
 
-    <!-- Scripts -->
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <!-- 2. LOBBY SCREEN -->
+    <div id="lobbyScreen" class="screen">
+        <div class="app-header">
+            <div class="user-status">
+                <img id="headAv" src="" style="width:35px; border-radius:50%;">
+                <b id="headName">User</b>
+            </div>
+            <div class="coin-tag"><i class="fas fa-coins"></i> <span id="headCoins">250,000</span></div>
+        </div>
+
+        <div class="lobby-content" id="mizGrid"></div>
+
+        <div class="footer-nav">
+            <div class="nav-btn active" onclick="showScreen('lobbyScreen')"><i class="fas fa-home"></i>لۆبی</div>
+            <div class="nav-btn" onclick="showScreen('profileScreen')"><i class="fas fa-user-circle"></i>پڕۆفایل</div>
+        </div>
+    </div>
+
+    <!-- 3. PROFILE SCREEN -->
+    <div id="profileScreen" class="screen">
+        <div class="profile-header">
+            <div class="profile-av-box"><img id="profAv" src="" style="width:100%;"></div>
+        </div>
+        <div style="text-align:center;">
+            <h2 id="profName" style="margin:0; color:var(--gold);"></h2>
+            <p style="color:#888;">ئاستی یاریزان: پرۆفیشناڵ</p>
+        </div>
+        
+        <div style="padding:0 20px;">
+            <div style="text-align:right; font-weight:bold; margin-bottom:10px;">ئاڤاتارەکەت هەڵبژێرە:</div>
+            <div class="av-grid" id="avList"></div>
+        </div>
+
+        <div class="footer-nav">
+            <div class="nav-btn" onclick="showScreen('lobbyScreen')"><i class="fas fa-home"></i>لۆبی</div>
+            <div class="nav-btn active" onclick="showScreen('profileScreen')"><i class="fas fa-user-circle"></i>پڕۆفایل</div>
+        </div>
+    </div>
+
+    <!-- 4. GAME SCREEN -->
+    <div id="gameScreen" class="screen">
+        <div class="app-header" style="background:transparent; border:none;">
+            <i class="fas fa-arrow-right" onclick="exitGame()"></i>
+            <div id="timer" style="color:var(--gold); font-weight:900; font-size:24px; font-family:Kanit;">60</div>
+            <div class="coin-tag">💰 <span id="betValue">0</span></div>
+        </div>
+
+        <div class="game-arena">
+            <!-- Opponent -->
+            <div class="p-info p-top">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Bot" style="width:30px; border-radius:50%;">
+                <b>Soran (Bot)</b>
+            </div>
+
+            <div class="center-objects">
+                <div class="tile-deck" onclick="drawTile()">?</div>
+                <div id="discardZone" class="discard-pile"></div>
+            </div>
+        </div>
+
+        <div class="rack-system">
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                <button onclick="sortMyTiles()" style="background:none; border:1.5px solid var(--gold); color:var(--gold); border-radius:10px; padding:6px 15px;">ڕێکخستن</button>
+                <button onclick="attemptWin()" style="background:var(--gold); border:none; color:#000; font-weight:900; border-radius:10px; padding:6px 25px;">بردنەوە</button>
+            </div>
+            <div id="rack1" class="rack-row"></div>
+            <div id="rack2" class="rack-row"></div>
+        </div>
+    </div>
+
+    <!-- WIN MODAL -->
+    <div id="winModal" class="win-modal">
+        <div class="animate__animated animate__zoomIn">
+            <i class="fas fa-trophy" style="font-size:100px; color:var(--gold);"></i>
+            <h1 style="color:var(--gold); font-size:45px; margin:10px 0;">پیرۆزە!</h1>
+            <p style="font-size:20px;">تۆ ئەم دەستەت بردەوە</p>
+            <button class="btn-gold" style="margin-top:30px; width:200px;" onclick="location.reload()">دووبارە یاری</button>
+        </div>
+    </div>
+
     <script>
-        // --- 1. CONFIGURATION ---
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.enableClosingConfirmation();
+        const colors = ['red', 'blue', 'black', 'yellow'];
+        let myTiles = [];
+        let player = { name: "Yarizan", coins: 250000, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=1" };
+        let gameTimer = 60;
+        let timerInt;
 
-        const FINNHUB_KEY = "d6h512hr01qnjncncg00d6h512hr01qnjncncg0g";
-        const firebaseConfig = {
-            apiKey: "AIzaSyDHFUfkDwOwDbzu9PEZlgu9NIDxCcQHbsk",
-            authDomain: "marketxpro.firebaseapp.com",
-            projectId: "marketxpro",
-            storageBucket: "marketxpro.firebasestorage.app",
-            appId: "1:429949573647:web:0175855866f9b3048d217a"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // --- 1. Login & Profile Logic ---
+        function performLogin() {
+            const val = document.getElementById('usernameInput').value;
+            if(val) player.name = val;
+            player.avatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${player.name}`;
+            
+            syncUI();
+            showScreen('lobbyScreen');
+            initMizList();
+            initAvatarPicker();
+        }
 
-        let isVIP = false; let usage = 0; let lastFetch = 0;
+        function syncUI() {
+            document.getElementById('headName').innerText = player.name;
+            document.getElementById('profName').innerText = player.name;
+            document.getElementById('headAv').src = player.avatar;
+            document.getElementById('profAv').src = player.avatar;
+            document.getElementById('headCoins').innerText = player.coins.toLocaleString();
+        }
 
-        // --- 2. THE DYNAMIC ENGINE (Hybrid) ---
-        async function fetchMarket() {
-            const now = Date.now();
-            if (now - lastFetch < 30000) return; // 30 sec safety
-            lastFetch = now;
+        function initAvatarPicker() {
+            const grid = document.getElementById('avList');
+            grid.innerHTML = '';
+            for(let i=1; i<=12; i++) {
+                const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i+50}`;
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'av-item';
+                img.onclick = () => {
+                    player.avatar = url;
+                    syncUI();
+                    document.querySelectorAll('.av-item').forEach(e => e.classList.remove('active'));
+                    img.classList.add('active');
+                };
+                grid.appendChild(img);
+            }
+        }
 
-            try {
-                // A. Metals & Crypto (CoinGecko - Works 24/7)
-                // We use PAX Gold for real Gold price and Tether Silver for Silver.
-                const cgRes = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,tether-silver,bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true`);
-                const cgData = await cgRes.json();
+        function initMizList() {
+            const list = document.getElementById('mizGrid');
+            list.innerHTML = '';
+            for(let i=1; i<=15; i++) {
+                const bet = i * 10000;
+                list.innerHTML += `
+                    <div class="miz-card" onclick="startGame(${bet})">
+                        <div>
+                            <b style="color:var(--gold); font-size:18px;">مێزی ${i}</b><br>
+                            <span style="font-size:12px; color:#888;">٢ یاریزان - خێرا</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-weight:900; font-size:20px;">💰 ${bet.toLocaleString()}</div>
+                            <button class="btn-gold" style="padding:4px 15px; font-size:10px; margin-top:5px; box-shadow:0 3px 0 #5a4000;">یاری بکە</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // --- 2. Game Logic ---
+        function startGame(bet) {
+            document.getElementById('betValue').innerText = bet.toLocaleString();
+            showScreen('gameScreen');
+            myTiles = [];
+            for(let i=0; i<14; i++) myTiles.push(createTile());
+            renderRack();
+            startTimer();
+        }
+
+        function createTile() {
+            return {
+                id: Math.random(),
+                num: Math.floor(Math.random() * 13) + 1,
+                color: colors[Math.floor(Math.random() * 4)],
+                isFlipped: false
+            };
+        }
+
+        function renderRack() {
+            const r1 = document.getElementById('rack1');
+            const r2 = document.getElementById('rack2');
+            r1.innerHTML = ''; r2.innerHTML = '';
+
+            myTiles.forEach((tile, index) => {
+                const el = document.createElement('div');
+                el.className = `tile ${tile.color} ${tile.isFlipped ? 'flipped' : ''}`;
+                el.innerHTML = `<div class="back"></div><span>${tile.num}</span>`;
                 
-                // Render Metals
-                if(cgData['pax-gold']) {
-                    document.getElementById('price-GOLD').innerText = cgData['pax-gold'].usd.toFixed(2);
-                    document.getElementById('price-SILVER').innerText = cgData['tether-silver'].usd.toFixed(2);
-                }
+                // تاپ بۆ هەڵگەڕانەوە
+                el.onclick = () => {
+                    tile.isFlipped = !tile.isFlipped;
+                    el.classList.toggle('flipped');
+                };
 
-                // Render Crypto
-                const coins = [{id:"bitcoin",s:"BTC"},{id:"ethereum",s:"ETH"},{id:"solana",s:"SOL"},{id:"binancecoin",s:"BNB"}];
-                document.getElementById('crypto-grid').innerHTML = coins.map(c => {
-                    const d = cgData[c.id];
-                    const trend = d.usd_24h_change >= 0 ? "up" : "down";
-                    return `
-                        <div class="card ${trend}">
-                            <div class="card-label">${c.s} / USD</div>
-                            <div class="price-val">$${d.usd.toLocaleString()}</div>
-                            <div class="change" style="color:var(--${trend})">${d.usd_24h_change.toFixed(2)}%</div>
-                        </div>`;
-                }).join('');
+                // دبل کلیک بۆ فڕێدان
+                el.ondblclick = () => discardTile(index);
 
-                // B. Forex (Finnhub - Major Pairs)
-                const pairs = ["EURUSD", "GBPUSD", "USDJPY", "USDCAD"];
-                const usdRate = 1524.50; // Parallel Market Rate
+                if(index < 7 || (myTiles.length > 14 && index < 8)) r1.appendChild(el);
+                else r2.appendChild(el);
+            });
 
-                for(const pair of pairs) {
-                    const fRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${pair}&token=${FINNHUB_KEY}`);
-                    const fData = await fRes.json();
-                    if(fData.c && fData.c !== 0) {
-                        const el = document.getElementById(`price-${pair}`);
-                        el.innerText = pair.includes("JPY") ? fData.c.toFixed(2) : fData.c.toFixed(4);
-                        
-                        // Derived IQD rates
-                        if(pair === "EURUSD") document.getElementById('iqd-eur').innerText = (fData.c * usdRate * 100).toLocaleString().split('.')[0];
-                        if(pair === "GBPUSD") document.getElementById('iqd-gbp').innerText = (fData.c * usdRate * 100).toLocaleString().split('.')[0];
-                    } else {
-                        // If price is 0, it means market is closed (Weekend)
-                        document.getElementById(`price-${pair}`).innerText = "CLOSED";
-                        document.getElementById(`price-${pair}`).style.fontSize = "14px";
-                    }
-                }
-
-            } catch(e) { console.error("Update Error", e); }
+            // سیستەمی ڕاکێشان و دانان (Drag & Drop)
+            new Sortable(r1, { group: 'rack', animation: 150 });
+            new Sortable(r2, { group: 'rack', animation: 150 });
         }
 
-        // --- 3. SYSTEM LOGIC ---
-        async function syncUser() {
-            const user = tg.initDataUnsafe?.user || { id: "dev_user", first_name: "Trader" };
-            const doc = await db.collection("users").doc(user.id.toString()).get();
-            const data = doc.exists() ? doc.data() : { name: user.first_name, isVIP: false, usage: 0 };
-            if(!doc.exists()) await db.collection("users").doc(user.id.toString()).set(data);
-            
-            isVIP = data.isVIP; usage = data.usage;
-            document.getElementById('u-name').innerText = data.name;
-            if(tg.initDataUnsafe?.user?.photo_url) document.getElementById('u-pfp').src = tg.initDataUnsafe.user.photo_url;
-            
-            const status = document.getElementById('u-status');
-            if(isVIP) {
-                status.innerText = "VIP PREMIUM ACCOUNT";
-                status.style.color = "var(--gold)";
-                document.getElementById('ai-fill').style.width = "100%";
-                document.getElementById('usage-text').innerText = "UNLIMITED NEURAL ACCESS";
-            } else {
-                document.getElementById('ai-fill').style.width = (usage/3 * 100) + "%";
-                document.getElementById('usage-text').innerText = `Scans Used: ${usage} of 3 Free`;
-            }
+        function drawTile() {
+            if(myTiles.length >= 15) return;
+            myTiles.push(createTile());
+            renderRack();
         }
 
-        function showTab(id, btn) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            btn.classList.add('active');
-            
-            if(id === 'chart-screen') {
-                document.getElementById('tradingview_widget').innerHTML = '';
-                new TradingView.widget({
-                    "autosize": true, "symbol": "OANDA:XAUUSD", "interval": "15",
-                    "timezone": "Asia/Baghdad", "theme": "dark", "style": "1",
-                    "container_id": "tradingview_widget", "hide_side_toolbar": true
-                });
-            }
-            tg.HapticFeedback.impactOccurred('medium');
+        function discardTile(index) {
+            if(myTiles.length < 15) return;
+            const t = myTiles[index];
+            const zone = document.getElementById('discardZone');
+            zone.innerHTML = `<div class="tile ${t.color}"><span>${t.num}</span></div>`;
+            myTiles.splice(index, 1);
+            renderRack();
         }
 
-        async function runAI() {
-            if(!isVIP && usage >= 3) {
-                tg.HapticFeedback.notificationOccurred('error');
-                alert("Please Upgrade to VIP for unlimited neural analysis!");
-                showTab('stars', document.querySelector('.fa-user-circle'));
+        function sortMyTiles() {
+            myTiles.sort((a, b) => {
+                if(a.color !== b.color) return colors.indexOf(a.color) - colors.indexOf(b.color);
+                return a.num - b.num;
+            });
+            renderRack();
+        }
+
+        function attemptWin() {
+            if(myTiles.length === 15) {
+                alert("دەبێت بەردێک فڕێ بدەیت پێش بردنەوە!");
                 return;
             }
 
-            const fill = document.getElementById('ai-fill');
-            fill.style.width = "0%";
-            setTimeout(() => fill.style.width = "100%", 100);
+            // مەرجی بردنەوە: هەموو بەردەکان نابێت هەڵگەڕاوە (Flip) بن و دەبێت ڕێکخرابن
+            let canWin = true;
+            myTiles.forEach(t => { if(t.isFlipped) canWin = false; });
 
-            usage++;
-            const user = tg.initDataUnsafe?.user || { id: "dev_user" };
-            await db.collection("users").doc(user.id.toString()).update({ usage: usage });
-
-            setTimeout(() => {
-                tg.HapticFeedback.notificationOccurred('success');
-                alert("🤖 NEURAL SCAN COMPLETE:\n\nGOLD (XAU/USD): Bullish detected.\nTarget: 2185.20\nConfidence: 89%");
-                syncUser();
-            }, 1500);
+            if(canWin) {
+                clearInterval(timerInt);
+                document.getElementById('winModal').style.display = 'flex';
+            } else {
+                alert("بەردەکانت ڕێک نین! ناتوانیت ببییتەوە.");
+            }
         }
 
-        async function payWithStars(amt) {
-            tg.showConfirm(`Confirm payment of ⭐️ ${amt} Stars to unlock Lifetime VIP?`, async (ok) => {
-                if(ok) {
-                    const user = tg.initDataUnsafe?.user || { id: "dev_user" };
-                    await db.collection("users").doc(user.id.toString()).update({ isVIP: true });
-                    tg.HapticFeedback.notificationOccurred('success');
-                    location.reload();
-                }
-            });
-        }
-
-        // Clock & Init
-        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB'), 1000);
-        setInterval(fetchMarket, 40000); // 40 seconds loop
-
-        window.onload = async () => {
-            await syncUser();
-            fetchMarket();
+        // --- 3. UI Helpers ---
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             
-            // Dummy Initial AI results
-            document.getElementById('ai-results').innerHTML = `
-                <div class="news-card" style="border-left:4px solid var(--up);">
-                    <strong>GOLD Neural Forecast</strong><br>
-                    <small style="color:var(--text-dim)">Trend: Bullish | Confidence: 84%</small>
-                </div>
-            `;
-        };
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            if(id === 'lobbyScreen') document.querySelectorAll('.nav-btn')[0].classList.add('active');
+            if(id === 'profileScreen') document.querySelectorAll('.nav-btn')[1].classList.add('active');
+        }
+
+        function startTimer() {
+            clearInterval(timerInt);
+            gameTimer = 60;
+            timerInt = setInterval(() => {
+                gameTimer--;
+                document.getElementById('timer').innerText = gameTimer;
+                if(gameTimer <= 0) {
+                    alert("کاتت تەواو بوو!");
+                    exitGame();
+                }
+            }, 1000);
+        }
+
+        function exitGame() {
+            if(confirm("دڵنیای لە دەرچوون؟ پارەی مێزەکە دەدۆڕێنیت!")) {
+                clearInterval(timerInt);
+                showScreen('lobbyScreen');
+            }
+        }
+
+        // Telegram WebApp Setup
+        if(window.Telegram) {
+            Telegram.WebApp.expand();
+            Telegram.WebApp.ready();
+        }
+
     </script>
 </body>
 </html>
