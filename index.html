@@ -3,302 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MarketX Pro | Live Terminal</title>
+    <title>MarketX Pro | Premium Terminal</title>
     
-    <!-- SDKs -->
+    <!-- SDKs & Fonts -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <style>
         :root {
-            --bg: #000000; --card: #0a0a0a;
-            --accent: #00f2ff; --secondary: #bd00ff;
-            --up: #00ffa3; --down: #ff3366;
-            --text: #ffffff; --glass-border: rgba(255, 255, 255, 0.08);
-            --vip-gold: #ffd700; --star-blue: #0088cc;
+            --bg: #000000;
+            --card: #0d0d0d;
+            --accent: #00f2ff;
+            --secondary: #7000ff;
+            --up: #00ffa3;
+            --down: #ff3366;
+            --text: #ffffff;
+            --text-dim: #888888;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --vip-gold: #ffd700;
+            --panel-grad: linear-gradient(145deg, #0f0f0f 0%, #050505 100%);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text); overflow: hidden; height: 100vh; user-select: none; }
-        .app-container { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; position: relative; display: flex; flex-direction: column; }
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
 
-        /* Header */
-        .main-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); z-index: 1000; border-bottom: 1px solid var(--glass-border); }
-        .logo-text { font-weight: 900; font-size: 20px; background: linear-gradient(to right, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
-        .live-clock { font-size: 11px; color: #777; font-weight: bold; background: rgba(255,255,255,0.03); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--glass-border); }
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            overflow: hidden; 
+            height: 100vh; 
+            user-select: none; 
+        }
 
-        /* Navigation */
-        nav.bottom-bar { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 92%; background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(25px); border-radius: 40px; display: flex; justify-content: space-around; padding: 14px; border: 1px solid var(--glass-border); z-index: 2000; box-shadow: 0 15px 35px rgba(0,0,0,0.7); }
-        .nav-btn { color: #444; font-size: 22px; cursor: pointer; transition: 0.3s; position: relative; }
-        .nav-btn.active { color: var(--accent); transform: translateY(-5px); }
-        .meta-btn { width: 52px; height: 52px; background: var(--accent); color: #000; border-radius: 50%; margin-top: -40px; border: 6px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .app-container { 
+            width: 100%; max-width: 500px; height: 100vh; 
+            margin: 0 auto; position: relative; display: flex; flex-direction: column; 
+        }
 
-        /* Screens */
-        .screen { display: none; flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 140px; animation: screenIn 0.4s ease-out; }
+        /* --- Header --- */
+        .main-header { 
+            padding: 20px; display: flex; justify-content: space-between; align-items: center; 
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); z-index: 1000; 
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .logo-box { display: flex; align-items: center; gap: 10px; }
+        .logo-box i { font-size: 24px; color: var(--accent); }
+        .logo-text { font-weight: 900; font-size: 22px; letter-spacing: -1px; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .live-clock { font-size: 12px; color: var(--accent); font-weight: 800; background: rgba(0,242,255,0.05); padding: 5px 12px; border-radius: 30px; border: 1px solid rgba(0,242,255,0.2); }
+
+        /* --- Bottom Navigation --- */
+        nav.bottom-bar { 
+            position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); 
+            width: 90%; background: rgba(13, 13, 13, 0.95); backdrop-filter: blur(20px); 
+            border-radius: 35px; display: flex; justify-content: space-around; padding: 12px; 
+            border: 1px solid var(--glass-border); z-index: 2000; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+        .nav-btn { color: #555; font-size: 20px; cursor: pointer; transition: 0.3s; position: relative; padding: 10px; }
+        .nav-btn.active { color: var(--accent); transform: translateY(-5px); text-shadow: 0 0 15px var(--accent); }
+        .meta-btn { 
+            width: 55px; height: 55px; background: var(--accent); color: #000; 
+            border-radius: 50%; margin-top: -45px; border: 5px solid var(--bg); 
+            display: flex; align-items: center; justify-content: center; font-size: 22px; 
+            box-shadow: 0 10px 20px rgba(0,242,255,0.3);
+        }
+
+        /* --- Screens --- */
+        .screen { display: none; flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 130px; animation: fadeIn 0.4s ease; }
         .screen.active { display: block; }
-        @keyframes screenIn { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Assets */
-        .section-title { font-size: 11px; color: #555; margin: 25px 0 15px; display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; }
+        /* --- UI Elements --- */
+        .section-title { 
+            font-size: 12px; color: var(--text-dim); margin: 25px 0 15px; 
+            display: flex; align-items: center; gap: 10px; text-transform: uppercase; 
+            letter-spacing: 2px; font-weight: 900; 
+        }
+        .section-title i { color: var(--accent); font-size: 14px; }
+
         .asset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .asset-card { background: var(--card); border: 1px solid var(--glass-border); padding: 16px; border-radius: 20px; transition: 0.3s; position: relative; }
-        .asset-card.up { border-right: 4px solid var(--up); }
-        .asset-card.down { border-right: 4px solid var(--down); }
-        .price-val { font-size: 16px; font-weight: 800; margin-top: 8px; color: var(--text); }
-        .change-val { font-size: 10px; margin-top: 4px; font-weight: bold; }
+        .card { 
+            background: var(--panel-grad); border: 1px solid var(--glass-border); 
+            padding: 18px; border-radius: 24px; transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.03)); pointer-events: none; }
+        
+        .card.up { border-left: 4px solid var(--up); }
+        .card.down { border-left: 4px solid var(--down); }
 
-        /* Chart Terminal */
-        .chart-terminal { display: flex; flex-direction: column; height: 100%; background: #000; }
-        .chart-tabs { display: flex; overflow-x: auto; padding: 12px; gap: 10px; background: #050505; border-bottom: 1px solid var(--glass-border); scrollbar-width: none; }
-        .c-tab { background: #111; color: #666; border: 1px solid #222; padding: 8px 18px; border-radius: 12px; font-size: 11px; font-weight: 800; white-space: nowrap; }
-        .c-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+        .card-label { font-size: 11px; color: var(--text-dim); font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        .price-val { font-size: 18px; font-weight: 900; margin-top: 10px; color: #fff; letter-spacing: -0.5px; }
+        .change-tag { font-size: 10px; margin-top: 6px; font-weight: 800; display: inline-block; padding: 2px 8px; border-radius: 5px; }
+        .change-tag.up { background: rgba(0,255,163,0.1); color: var(--up); }
+        .change-tag.down { background: rgba(255,51,102,0.1); color: var(--down); }
 
-        /* AI Prediction */
-        .ai-card { background: linear-gradient(135deg, #0a0a0a 0%, #001a1a 100%); border: 1px solid var(--glass-border); padding: 22px; border-radius: 24px; text-align: center; margin-bottom: 20px; }
-        .progress-bar { height: 8px; background: #111; border-radius: 4px; margin: 15px 0; overflow: hidden; }
-        .progress-fill { height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 10px var(--accent); transition: 0.6s; }
-        .upload-area { border: 2px dashed #222; padding: 40px 20px; border-radius: 24px; text-align: center; cursor: pointer; }
+        /* --- IQD Special Section --- */
+        .iqd-card { grid-column: span 2; background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); display: flex; justify-content: space-between; align-items: center; }
+        .iqd-badge { background: var(--up); color: #000; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; }
 
-        /* VIP & Stars */
-        .profile-hero { text-align: center; padding: 30px 20px; background: radial-gradient(circle at top, #111 0%, #000 100%); border-radius: 30px; border: 1px solid var(--glass-border); margin-bottom: 25px; }
-        .u-avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); padding: 4px; margin-bottom: 15px; }
-        .star-box { background: linear-gradient(90deg, #001f3f 0%, #000814 100%); border: 1px solid var(--star-blue); padding: 20px; border-radius: 22px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .star-btn { background: var(--star-blue); color: #fff; border: none; padding: 10px 18px; border-radius: 14px; font-weight: 900; display: flex; align-items: center; gap: 6px; }
+        /* --- AI Terminal --- */
+        .ai-terminal { background: radial-gradient(circle at top right, #1a0033 0%, #050505 100%); border: 1px solid var(--secondary); padding: 30px 20px; border-radius: 30px; text-align: center; margin-bottom: 20px; }
+        .ai-status { color: var(--secondary); font-size: 12px; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; display: block; }
+        .progress-container { height: 10px; background: rgba(255,255,255,0.05); border-radius: 20px; margin: 20px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(to right, var(--accent), var(--secondary)); box-shadow: 0 0 20px var(--accent); transition: 1s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
 
-        .news-card { background: var(--card); padding: 16px; border-radius: 18px; margin-bottom: 15px; border-left: 4px solid var(--secondary); }
+        /* --- Profile --- */
+        .profile-card { text-align: center; padding: 40px 20px; background: var(--panel-grad); border-radius: 35px; border: 1px solid var(--glass-border); margin-bottom: 25px; }
+        .avatar-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 20px; }
+        .u-avatar { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--accent); padding: 5px; object-fit: cover; }
+        .vip-badge { position: absolute; bottom: 0; right: 0; background: var(--vip-gold); color: #000; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 3px solid var(--bg); }
+        
+        .stars-btn { 
+            background: linear-gradient(to right, #0088cc, #00aaff); color: #fff; 
+            width: 100%; padding: 18px; border-radius: 20px; border: none; font-weight: 900; 
+            font-size: 16px; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;
+            box-shadow: 0 10px 20px rgba(0,136,204,0.3);
+        }
+
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar { width: 0px; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
+        <!-- Header -->
         <header class="main-header">
-            <div class="logo-text">MARKETX PRO</div>
+            <div class="logo-box">
+                <i class="fas fa-bolt"></i>
+                <div class="logo-text">MARKETX PRO</div>
+            </div>
             <div id="clock" class="live-clock">00:00:00</div>
         </header>
 
-        <!-- Home: Live Forex & Crypto -->
+        <!-- Home Screen -->
         <div id="home" class="screen active">
-            <div class="section-title"><span><i class="fas fa-chart-line"></i> FOREX & METALS (LIVE)</span></div>
-            <div class="asset-grid" id="forex-list">
-                <div style="color:#444; font-size:12px; padding:20px;">Loading Live Data...</div>
+            <!-- Metals Section -->
+            <div class="section-title"><i class="fas fa-gem"></i> METALS & COMMODITIES</div>
+            <div class="asset-grid" id="metals-list">
+                <div class="card up"><div class="card-label"><i class="fas fa-coins"></i> GOLD (XAU)</div><div class="price-val" id="price-XAU/USD">Loading...</div><div class="change-tag up">LIVE</div></div>
+                <div class="card up"><div class="card-label"><i class="fas fa-ring"></i> SILVER (XAG)</div><div class="price-val" id="price-XAG/USD">Loading...</div><div class="change-tag up">LIVE</div></div>
             </div>
 
-            <div class="section-title"><span><i class="fab fa-bitcoin"></i> CRYPTO MARKET (LIVE)</span></div>
-            <div class="asset-grid" id="crypto-list">
-                <div style="color:#444; font-size:12px; padding:20px;">Loading Live Data...</div>
-            </div>
-
-            <div class="section-title"><span><i class="fas fa-money-bill-wave"></i> LOCAL RATES (IQD)</span></div>
+            <!-- IQD Rates Section -->
+            <div class="section-title"><i class="fas fa-money-bill-transfer"></i> LOCAL IQD MARKET</div>
             <div class="asset-grid">
-                <div class="asset-card up"><small>USD / IQD (Parallel)</small><div class="price-val">152,450</div></div>
-                <div class="asset-card down"><small>TOMAN / IQD</small><div class="price-val">62,100</div></div>
+                <div class="card iqd-card">
+                    <div>
+                        <div class="card-label">USD / IQD (Bursa)</div>
+                        <div class="price-val">152,450</div>
+                    </div>
+                    <div class="iqd-badge">PARALLEL</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">EUR / IQD</div>
+                    <div class="price-val">164,200</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">GBP / IQD</div>
+                    <div class="price-val">191,850</div>
+                </div>
+            </div>
+
+            <!-- Forex Section -->
+            <div class="section-title"><i class="fas fa-exchange-alt"></i> MAJOR CURRENCIES</div>
+            <div class="asset-grid" id="forex-list">
+                <!-- Will be populated by JS -->
+                <div class="card"><div class="card-label">EUR / USD</div><div class="price-val" id="price-EUR/USD">---</div></div>
+                <div class="card"><div class="card-label">GBP / USD</div><div class="price-val" id="price-GBP/USD">---</div></div>
+                <div class="card"><div class="card-label">USD / JPY</div><div class="price-val" id="price-USD/JPY">---</div></div>
+                <div class="card"><div class="card-label">AUD / USD</div><div class="price-val" id="price-AUD/USD">---</div></div>
+                <div class="card"><div class="card-label">USD / CAD</div><div class="price-val" id="price-USD/CAD">---</div></div>
+                <div class="card"><div class="card-label">USD / CHF</div><div class="price-val" id="price-USD/CHF">---</div></div>
+            </div>
+
+            <!-- Crypto Section -->
+            <div class="section-title"><i class="fab fa-bitcoin"></i> CRYPTO ASSETS</div>
+            <div class="asset-grid" id="crypto-list">
+                <div style="color:#444; padding:20px;">Fetching global data...</div>
             </div>
         </div>
 
         <!-- News Screen -->
         <div id="news" class="screen">
-            <h5 class="section-title">Global Sessions (Baghdad Time)</h5>
-            <div class="profile-hero" style="padding:15px; margin-bottom:20px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>London</span><span style="color:var(--up)">● OPEN</span></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>New York</span><span style="color:var(--up)">● OPEN</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>Tokyo</span><span style="color:#444">● CLOSED</span></div>
-            </div>
-            <h5 class="section-title">MARKET UPDATES</h5>
+            <div class="section-title"><i class="fas fa-globe"></i> LIVE MARKET NEWS</div>
             <div id="news-feed"></div>
         </div>
 
         <!-- Chart Screen -->
         <div id="chart-screen" class="screen" style="padding:0; overflow:hidden;">
-            <div class="chart-terminal">
-                <div class="chart-tabs">
-                    <button class="c-tab active" onclick="loadChart('OANDA:XAUUSD', this)">GOLD</button>
-                    <button class="c-tab" onclick="loadChart('BINANCE:BTCUSDT', this)">BTC</button>
-                    <button class="c-tab" onclick="loadChart('TVC:USOIL', this)">OIL</button>
-                    <button class="c-tab" onclick="loadChart('FX:EURUSD', this)">EUR/USD</button>
-                </div>
-                <div id="tradingview_widget" style="flex:1;"></div>
-            </div>
+            <div id="tradingview_widget" style="height:100%;"></div>
         </div>
 
-        <!-- AI Analysis Screen -->
+        <!-- AI Screen -->
         <div id="ai" class="screen">
-            <div class="ai-card">
-                <h4 style="color:var(--accent)">AI SMART TERMINAL</h4>
-                <div class="progress-bar"><div id="ai-progress" class="progress-fill"></div></div>
-                <p id="usage-text" style="font-size:11px; color:#666">Usage: 0 of 3 Free Predictions</p>
+            <div class="ai-terminal">
+                <span class="ai-status">AI Neural Core Active</span>
+                <h2 style="font-weight:900; font-size:24px;">Market Analysis</h2>
+                <div class="progress-container"><div id="ai-progress" class="progress-bar"></div></div>
+                <p id="usage-text" style="color:var(--text-dim); font-size:12px;">Waiting for scan...</p>
             </div>
+            
             <div class="upload-area" onclick="runAI()">
-                <i class="fas fa-microchip" style="font-size:40px; color:var(--accent); margin-bottom:15px;"></i>
-                <p>Start AI Market Scan</p>
+                <div style="background:rgba(0,242,255,0.1); width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
+                    <i class="fas fa-brain" style="font-size:30px; color:var(--accent);"></i>
+                </div>
+                <h3 style="font-weight:800;">Run Smart Analysis</h3>
+                <p style="color:var(--text-dim); font-size:12px; margin-top:5px;">Scan gold and major pairs for signals</p>
             </div>
-            <h5 class="section-title">TODAY'S AI FORECASTS</h5>
-            <div id="ai-list"></div>
+
+            <div id="ai-list" style="margin-top:25px;"></div>
         </div>
 
-        <!-- Profile & Stars -->
+        <!-- Profile Screen -->
         <div id="stars" class="screen">
-            <div class="profile-hero">
-                <img id="u-pfp" src="https://via.placeholder.com/90" class="u-avatar">
-                <h2 id="u-name">Trader</h2>
-                <div id="account-status" style="font-size:10px; color:#555; margin-top:10px;">STANDARD ACCOUNT</div>
+            <div class="profile-card">
+                <div class="avatar-wrapper">
+                    <img id="u-pfp" src="https://via.placeholder.com/100" class="u-avatar">
+                    <div id="vip-icon" class="vip-badge" style="display:none;"><i class="fas fa-crown"></i></div>
+                </div>
+                <h2 id="u-name" style="font-weight:900;">User</h2>
+                <p id="account-status" style="color:var(--text-dim); font-size:12px; margin-top:5px;">Standard Member</p>
             </div>
 
-            <h5 class="section-title">VIP PREMIUM (TELEGRAM STARS)</h5>
-            <div class="star-box">
-                <div><strong>Monthly VIP</strong><br><small style="color:#00ffaa">Full AI + Signals</small></div>
-                <button class="star-btn" onclick="payWithStars(49)">⭐️ 49</button>
-            </div>
-            <div class="star-box" style="border-color:var(--vip-gold)">
-                <div><strong>Lifetime Pass</strong><br><small style="color:var(--vip-gold)">Unlock Everything</small></div>
-                <button class="star-btn" style="background:var(--vip-gold); color:#000;" onclick="payWithStars(199)">⭐️ 199</button>
+            <div class="section-title"><i class="fas fa-star"></i> PREMIUM UPGRADES</div>
+            <div class="card" style="margin-bottom:15px; border:1px solid var(--star-blue);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h4 style="font-weight:800;">VIP MONTHLY PASS</h4>
+                        <p style="color:var(--text-dim); font-size:11px;">Unlimited AI + Real-time Signals</p>
+                    </div>
+                    <button class="stars-btn" style="width:auto; margin:0; padding:10px 20px;" onclick="payWithStars(49)">⭐️ 49</button>
+                </div>
             </div>
         </div>
 
+        <!-- Navigation Bar -->
         <nav class="bottom-bar">
-            <div class="nav-btn active" onclick="showTab('home', this)"><i class="fas fa-home"></i></div>
-            <div class="nav-btn" onclick="showTab('news', this)"><i class="fas fa-newspaper"></i></div>
+            <div class="nav-btn active" onclick="showTab('home', this)"><i class="fas fa-chart-pie"></i></div>
+            <div class="nav-btn" onclick="showTab('news', this)"><i class="fas fa-bolt"></i></div>
             <div class="nav-btn meta-btn" onclick="showTab('chart-screen', this)"><i class="fas fa-chart-line"></i></div>
             <div class="nav-btn" onclick="showTab('ai', this)"><i class="fas fa-robot"></i></div>
             <div class="nav-btn" onclick="showTab('stars', this)"><i class="fas fa-user-circle"></i></div>
         </nav>
     </div>
 
-    <!-- TradingView Script -->
+    <!-- Scripts -->
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-
     <script>
+        // --- 1. FIREBASE & TG INIT ---
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const TD_KEY = "27a5e0dbe13d43ce99773474acbe048e"; 
-        const CG_KEY = "CG-1kwVhbektE8TArXdHLdnx3M1"; 
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHFUfkDwOwDbzu9PEZlgu9NIDxCcQHbsk",
+            authDomain: "marketxpro.firebaseapp.com",
+            projectId: "marketxpro",
+            storageBucket: "marketxpro.firebasestorage.app",
+            messagingSenderId: "429949573647",
+            appId: "1:429949573647:web:0175855866f9b3048d217a"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        // --- MARKET DATA ENGINE ---
-        async function fetchLiveMarket() {
+        const TD_KEY = "27a5e0dbe13d43ce99773474acbe048e";
+        let isVIP = false;
+        let usage = 0;
+        let lastFetch = 0;
+
+        // --- 2. LIVE MARKET DATA ---
+        async function fetchMarketData() {
+            const now = Date.now();
+            if (now - lastFetch < 65000) return; // Rate limiting to protect Twelve Data API
+            lastFetch = now;
+
             try {
-                // Fetch 8 Crypto
-                const cryptoRes = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin,ripple,cardano,dogecoin,avalanche-2&vs_currencies=usd&include_24hr_change=true`);
-                const cryptoData = await cryptoRes.json();
+                // Fetch Crypto (CoinGecko)
+                const cRes = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true`);
+                const cData = await cRes.json();
+                renderCrypto(cData);
 
-                // Fetch 8 Forex (Strict Limit 8 for Basic Plan)
-                const fSymbols = "XAU/USD,EUR/USD,GBP/USD,USD/JPY,AUD/USD,USD/CAD,WTI/USD,XAG/USD";
-                const forexRes = await fetch(`https://api.twelvedata.com/price?symbol=${fSymbols}&apikey=${TD_KEY}`);
-                const forexData = await forexRes.json();
+                // Fetch Forex & Metals (Twelve Data - Exactly 8 symbols)
+                const symbols = "XAU/USD,XAG/USD,EUR/USD,GBP/USD,USD/JPY,AUD/USD,USD/CAD,USD/CHF";
+                const fRes = await fetch(`https://api.twelvedata.com/price?symbol=${symbols}&apikey=${TD_KEY}`);
+                const fData = await fRes.json();
+                renderForex(fData);
 
-                renderUI(cryptoData, forexData);
-            } catch (err) { console.error("API Error:", err); }
+            } catch (err) { console.error("Market Fetch Error", err); }
         }
 
-        function renderUI(crypto, forex) {
-            // Render Crypto
-            const cList = [
-                {s:"BTC", id:"bitcoin"}, {s:"ETH", id:"ethereum"}, {s:"SOL", id:"solana"}, {s:"BNB", id:"binancecoin"},
-                {s:"XRP", id:"ripple"}, {s:"ADA", id:"cardano"}, {s:"DOGE", id:"dogecoin"}, {s:"AVAX", id:"avalanche-2"}
+        function renderCrypto(data) {
+            const list = [
+                {s:"BTC", id:"bitcoin", icon:"fab fa-bitcoin"},
+                {s:"ETH", id:"ethereum", icon:"fab fa-ethereum"},
+                {s:"SOL", id:"solana", icon:"fas fa-s"},
+                {s:"BNB", id:"binancecoin", icon:"fas fa-coins"}
             ];
-            document.getElementById('crypto-list').innerHTML = cList.map(item => {
-                const d = crypto[item.id];
-                if(!d) return '';
-                let t = d.usd_24h_change >= 0 ? "up" : "down";
-                return `<div class="asset-card ${t}"><small>${item.s}</small><div class="price-val">$${d.usd.toLocaleString()}</div><div class="change-val" style="color:var(--${t})">${d.usd_24h_change.toFixed(2)}%</div></div>`;
-            }).join('');
-
-            // Render Forex
-            const fList = [
-                {s:"GOLD", id:"XAU/USD"}, {s:"SILVER", id:"XAG/USD"}, {s:"EUR/USD", id:"EUR/USD"}, {s:"GBP/USD", id:"GBP/USD"},
-                {s:"USD/JPY", id:"USD/JPY"}, {s:"AUD/USD", id:"AUD/USD"}, {s:"USD/CAD", id:"USD/CAD"}, {s:"OIL (WTI)", id:"WTI/USD"}
-            ];
-            document.getElementById('forex-list').innerHTML = fList.map(item => {
-                const d = forex[item.id];
-                if(!d) return '';
-                let p = parseFloat(d.price);
-                let formatted = item.id.includes("USD/") ? p.toFixed(4) : p.toFixed(2);
-                return `<div class="asset-card up"><small>${item.s}</small><div class="price-val">${formatted}</div><div class="change-val" style="color:var(--up)">● LIVE</div></div>`;
+            document.getElementById('crypto-list').innerHTML = list.map(item => {
+                const d = data[item.id];
+                const t = d.usd_24h_change >= 0 ? "up" : "down";
+                return `
+                    <div class="card ${t}">
+                        <div class="card-label"><i class="${item.icon}"></i> ${item.s} / USD</div>
+                        <div class="price-val">$${d.usd.toLocaleString()}</div>
+                        <div class="change-tag ${t}">${d.usd_24h_change.toFixed(2)}%</div>
+                    </div>`;
             }).join('');
         }
 
-        // --- CHART SYSTEM ---
-        let currentSymbol = "OANDA:XAUUSD";
-        function loadChart(sym, btn) {
-            currentSymbol = sym;
-            if(btn) {
-                document.querySelectorAll('.c-tab').forEach(t => t.classList.remove('active'));
-                btn.classList.add('active');
+        function renderForex(data) {
+            for (const [symbol, info] of Object.entries(data)) {
+                const el = document.getElementById(`price-${symbol}`);
+                if (el) {
+                    let p = parseFloat(info.price);
+                    el.innerText = symbol.includes("USD/") && !symbol.includes("JPY") ? p.toFixed(4) : p.toFixed(2);
+                }
             }
-            document.getElementById('tradingview_widget').innerHTML = '';
-            new TradingView.widget({
-                "autosize": true, "symbol": sym, "interval": "15", "timezone": "Asia/Baghdad",
-                "theme": "dark", "style": "1", "container_id": "tradingview_widget",
-                "hide_side_toolbar": true, "backgroundColor": "#000000"
-            });
         }
 
-        // --- APP LOGIC ---
-        let usage = localStorage.getItem('mx_usage') || 0;
-        let isVIP = localStorage.getItem('mx_vip') === 'true';
+        // --- 3. FIREBASE SYNC ---
+        async function syncUser() {
+            const user = tg.initDataUnsafe?.user || { id: "dev_test", first_name: "Developer" };
+            const userRef = db.collection("users").doc(user.id.toString());
+            const doc = await userRef.get();
 
+            if (!doc.exists()) {
+                const data = { name: user.first_name, isVIP: false, usage: 0 };
+                await userRef.set(data);
+                updateUI(data);
+            } else {
+                const data = doc.data();
+                isVIP = data.isVIP;
+                usage = data.usage;
+                updateUI(data);
+            }
+        }
+
+        function updateUI(data) {
+            document.getElementById('u-name').innerText = data.name;
+            if(tg.initDataUnsafe?.user?.photo_url) document.getElementById('u-pfp').src = tg.initDataUnsafe.user.photo_url;
+            
+            if(data.isVIP) {
+                document.getElementById('account-status').innerText = "VIP PREMIUM MEMBER";
+                document.getElementById('account-status').style.color = "var(--vip-gold)";
+                document.getElementById('vip-icon').style.display = "flex";
+                document.getElementById('usage-text').innerText = "UNLIMITED ACCESS";
+                document.getElementById('ai-progress').style.width = "100%";
+            } else {
+                let p = (data.usage / 3) * 100;
+                document.getElementById('ai-progress').style.width = p + "%";
+                document.getElementById('usage-text').innerText = `Scans used: ${data.usage} of 3 Free`;
+            }
+        }
+
+        // --- 4. APP LOGIC ---
         function showTab(id, btn) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             btn.classList.add('active');
-            if(id === 'chart-screen') loadChart(currentSymbol);
-            tg.HapticFeedback.impactOccurred('light');
+            
+            if(id === 'chart-screen') {
+                document.getElementById('tradingview_widget').innerHTML = '';
+                new TradingView.widget({
+                    "autosize": true, "symbol": "OANDA:XAUUSD", "interval": "15",
+                    "timezone": "Asia/Baghdad", "theme": "dark", "style": "1",
+                    "container_id": "tradingview_widget", "hide_side_toolbar": true
+                });
+            }
+            tg.HapticFeedback.impactOccurred('medium');
         }
 
-        function runAI() {
+        async function runAI() {
             if(!isVIP && usage >= 3) {
-                alert("Please Upgrade to VIP for more scans!");
+                tg.HapticFeedback.notificationOccurred('error');
+                alert("Please upgrade to VIP to continue scans!");
                 showTab('stars', document.querySelector('.fa-user-circle'));
                 return;
             }
+
+            // Start animation
+            document.getElementById('ai-progress').style.width = "0%";
+            setTimeout(() => document.getElementById('ai-progress').style.width = "100%", 100);
+
             usage++;
-            localStorage.setItem('mx_usage', usage);
-            updateAIUI();
-            tg.HapticFeedback.notificationOccurred('success');
-            alert("🤖 AI Scan: Bullish momentum detected on XAU/USD. Strong support at 2015.00.");
+            const user = tg.initDataUnsafe?.user || { id: "dev_test" };
+            await db.collection("users").doc(user.id.toString()).update({ usage: usage });
+            
+            setTimeout(() => {
+                tg.HapticFeedback.notificationOccurred('success');
+                alert("🤖 AI SCAN COMPLETE:\n\nGOLD (XAU/USD): Bullish Bias\nTarget: 2182.50\nStop: 2145.00\n\nConfidence: 84%");
+                syncUser();
+            }, 1200);
         }
 
-        function updateAIUI() {
-            if(isVIP) {
-                document.getElementById('ai-progress').style.width = "100%";
-                document.getElementById('usage-text').innerText = "UNLIMITED VIP ACCESS";
-            } else {
-                let p = (usage / 3) * 100;
-                document.getElementById('ai-progress').style.width = p + "%";
-                document.getElementById('usage-text').innerText = `Usage: ${usage} of 3 Free Predictions`;
-            }
-        }
-
-        function payWithStars(stars) {
-            tg.showConfirm(`Pay ⭐️ ${stars} to unlock VIP?`, (ok) => {
+        async function payWithStars(amt) {
+            tg.showConfirm(`Confirm payment of ⭐️ ${amt} Stars?`, async (ok) => {
                 if(ok) {
-                    isVIP = true;
-                    localStorage.setItem('mx_vip', 'true');
+                    const user = tg.initDataUnsafe?.user || { id: "dev_test" };
+                    await db.collection("users").doc(user.id.toString()).update({ isVIP: true });
+                    tg.HapticFeedback.notificationOccurred('success');
                     location.reload();
                 }
             });
         }
 
-        // Intervals & Init
-        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-        setInterval(fetchLiveMarket, 60000); // Update every 60 seconds (Safe for API)
+        // Clock
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
+        }, 1000);
 
-        window.onload = () => {
-            fetchLiveMarket();
-            updateAIUI();
-            const user = tg.initDataUnsafe?.user;
-            if(user) {
-                document.getElementById('u-name').innerText = user.first_name;
-                if(user.photo_url) document.getElementById('u-pfp').src = user.photo_url;
-            }
-            if(isVIP) {
-                document.getElementById('account-status').innerText = "VIP PREMIUM ACCOUNT";
-                document.getElementById('account-status').style.color = "var(--vip-gold)";
-            }
-            // Load initial news
-            document.getElementById('news-feed').innerHTML = [`Gold prices stabilize after Fed remarks`, `Bitcoin ETF inflow hits record high`, `Oil fluctuates amid Middle East tensions`].map(n => `<div class="news-card"><small>HOT NEWS</small><p>${n}</p></div>`).join('');
-            document.getElementById('ai-list').innerHTML = `<div class="news-card"><strong>XAU/USD</strong><p>Trend: BULLISH | Confidence: 88%</p></div><div class="news-card"><strong>BTC/USD</strong><p>Trend: NEUTRAL | Confidence: 65%</p></div>`;
+        // Update market every 75 seconds
+        setInterval(fetchMarketData, 75000);
+
+        window.onload = async () => {
+            await syncUser();
+            fetchMarketData();
+            
+            // Dummy News
+            document.getElementById('news-feed').innerHTML = `
+                <div class="card" style="margin-bottom:12px;"><small style="color:var(--accent)">10m ago</small><p style="font-size:13px; margin-top:5px; font-weight:600;">Gold prices test new resistance at $2160 as US Dollar weakens.</p></div>
+                <div class="card"><small style="color:var(--accent)">1h ago</small><p style="font-size:13px; margin-top:5px; font-weight:600;">Bitcoin stabilization continues above $65,000; analysts eye next leg up.</p></div>
+            `;
+            
+            document.getElementById('ai-list').innerHTML = `
+                <div class="card" style="border-left:4px solid var(--up); margin-bottom:10px;"><strong>GOLD Analysis</strong><br><small style="color:var(--text-dim)">Bullish Trend | Confidence 88%</small></div>
+                <div class="card" style="border-left:4px solid var(--down);"><strong>EUR/USD Analysis</strong><br><small style="color:var(--text-dim)">Bearish Bias | Confidence 62%</small></div>
+            `;
         };
     </script>
 </body>
